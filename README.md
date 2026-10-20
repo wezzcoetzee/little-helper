@@ -110,7 +110,7 @@ bun run build        # Generate dist/ from source, including PNG icon sizes
 bun run check:build  # Check packaged entrypoints, CSS, icons and Mermaid chunks
 ```
 
-CI runs typechecking, tests, build and package validation. Dependencies are bundled locally; no CDN script loading. `dist/`, `node_modules/`, temporary files and the three original checkout folders are ignored by Git.
+CI runs typechecking, tests, build and package validation. Dependencies are bundled locally; no CDN script loading. `dist/`, `node_modules/` and temporary files are ignored by Git. The original reference checkouts are no longer needed; all extension sources and upstream notices are included in this repository.
 
 ```text
 manifest.json          Single Manifest V3 configuration
