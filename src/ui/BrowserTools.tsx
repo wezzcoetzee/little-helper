@@ -59,10 +59,7 @@ export function Tabs({
             }}
           />
         </Field>
-        <p className="help">
-          Active, pinned and playing tabs stay open. The last tab in each window
-          stays open.
-        </p>
+        <p className="help">Active, pinned, playing and last tabs stay open.</p>
         <form
           onSubmit={(e) => {
             e.preventDefault();

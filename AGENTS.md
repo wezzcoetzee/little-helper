@@ -21,7 +21,7 @@ A single Chrome Manifest V3 extension. Bun bundles TypeScript/React UI, Markdown
 
 ## UI
 
-Approved direction A: compact site-first toolbox, true black background, white text, system sans, thin dividers, no decorative cards/pills or continuous animations. Markdown capture uses a matching side panel. Native controls must remain labelled and keyboard operable. For new non-trivial design changes, show multiple static mocks and wait for Wesley's pick.
+Approved direction B: compact site-first toolbox with a fixed 420 × 600px popup, single-line actions and right-aligned details, true black background, white text, system sans, thin dividers, no decorative cards/pills or continuous animations. Markdown capture uses a matching side panel. Native controls must remain labelled and keyboard operable. For new non-trivial design changes, show multiple static mocks and wait for Wesley's pick.
 
 ## Behavior
 
