@@ -1,0 +1,115 @@
+{
+  "manifest_version": 3,
+  "name": "little-helper",
+  "version": "1.0.0",
+  "minimum_chrome_version": "116",
+  "description": "A site toolbox for Markdown capture, GitHub reading, browser controls and focused browsing.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "alarms",
+    "cookies",
+    "webRequest",
+    "webNavigation",
+    "contentSettings",
+    "scripting",
+    "downloads",
+    "contextMenus",
+    "sidePanel",
+    "clipboardWrite",
+    "tabCapture"
+  ],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "little-helper",
+    "default_icon": { "16": "icons/icon16.png", "32": "icons/icon32.png" }
+  },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "commands": {
+    "smart-extract": {
+      "suggested_key": { "default": "Alt+Shift+M" },
+      "description": "Copy this page as Markdown"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": [
+        "browser/darkmode.js",
+        "browser/nocookie.js",
+        "browser/livecss.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["browser/jsonformat.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["clipper.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://github.com/*", "https://gist.github.com/*"],
+      "js": ["github.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["*://www.youtube.com/*", "*://m.youtube.com/*"],
+      "js": ["browser/unhook.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://x.com/*",
+        "*://twitter.com/*",
+        "*://mobile.x.com/*",
+        "*://mobile.twitter.com/*"
+      ],
+      "js": ["browser/xdim.js", "browser/xunhook.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "*://www.google.com/*",
+        "*://www.google.co.uk/*",
+        "*://www.google.co.jp/*",
+        "*://www.google.co.in/*",
+        "*://www.google.co.kr/*",
+        "*://www.google.co.id/*",
+        "*://www.google.com.br/*",
+        "*://www.google.com.au/*",
+        "*://www.google.com.mx/*",
+        "*://www.google.de/*",
+        "*://www.google.fr/*",
+        "*://www.google.es/*",
+        "*://www.google.it/*",
+        "*://www.google.nl/*",
+        "*://www.google.pt/*",
+        "*://www.google.pl/*",
+        "*://www.google.se/*",
+        "*://www.google.ca/*",
+        "*://www.google.ru/*"
+      ],
+      "js": ["browser/gmaps.js", "browser/viewimage.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["github-diagrams/*.js"],
+      "matches": ["https://github.com/*", "https://gist.github.com/*"]
+    }
+  ]
+}

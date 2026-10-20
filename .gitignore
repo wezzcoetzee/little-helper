@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+github-extension/
+superlevels/
+snipsnapp/
+
+coverage/
+*.log
+*.zip
+.env
+.env.*
+!.env.example

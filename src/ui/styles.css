@@ -1,0 +1,517 @@
+:root {
+  color-scheme: dark;
+  font:
+    13px/1.5 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: #000;
+  color: #fff;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: #000;
+  color: #fff;
+}
+body.popup {
+  width: 420px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  background: #111;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+button:hover {
+  background: #202020;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+a {
+  color: inherit;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+input:not([type="checkbox"]):not([type="range"]),
+textarea,
+select {
+  background: #000;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 8px;
+  min-width: 0;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #999;
+}
+textarea {
+  resize: vertical;
+  width: 100%;
+  min-height: 76px;
+}
+small {
+  font-size: 11px;
+  color: #aaa;
+}
+h1,
+h2,
+p {
+  margin: 0;
+}
+h2 {
+  font-size: 13px;
+  font-weight: 650;
+}
+p {
+  line-height: 1.6;
+}
+kbd {
+  font:
+    10px ui-monospace,
+    monospace;
+  border: 1px solid #444;
+  border-radius: 3px;
+  padding: 0 4px;
+  color: #aaa;
+}
+.app-shell {
+  padding: 20px;
+}
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 19px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  text-decoration: none;
+}
+.site-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 165px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #aaa;
+  font-size: 11px;
+}
+.site-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: #9cdeb5;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  margin-bottom: 12px;
+}
+.search > span {
+  font-size: 21px;
+  color: #aaa;
+}
+.search input {
+  border: 0 !important;
+  padding: 10px 0 !important;
+  flex: 1;
+  width: 100%;
+}
+.search:focus-within {
+  outline: 1px solid #fff;
+}
+.search input:focus-visible {
+  outline: none;
+}
+.tabs {
+  display: flex;
+  gap: 23px;
+  border-bottom: 1px solid #303030;
+  margin-bottom: 14px;
+}
+.tabs button {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 9px 0 11px;
+  color: #aaa;
+  font-size: 12px;
+}
+.tabs button[aria-current="page"] {
+  color: #fff;
+  border-bottom: 2px solid #fff;
+}
+.tool-section {
+  margin-bottom: 22px;
+}
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+.tool-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  border: 0;
+  border-bottom: 1px solid #232323;
+  border-radius: 0;
+  padding: 10px 0;
+  width: 100%;
+  font-size: 12px;
+}
+.action-row {
+  background: none;
+  text-align: left;
+}
+.action-row:hover {
+  background: #111;
+}
+.tool-row .grow,
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+.tool-row small {
+  font-size: 10px;
+  white-space: nowrap;
+}
+.tool-row span > small,
+.cookie-row small {
+  display: block;
+  font-size: 10px;
+  color: #aaa;
+}
+.row-icon {
+  width: 16px;
+  color: #aaa;
+}
+.arrow {
+  color: #aaa;
+}
+.toggle-row {
+  cursor: pointer;
+}
+.toggle-row > span {
+  flex: 1;
+}
+.toggle-row input {
+  appearance: none;
+  position: relative;
+  width: 28px;
+  height: 16px;
+  border-radius: 10px;
+  background: #333;
+  border: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  margin: 0;
+}
+.toggle-row input:after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #aaa;
+}
+.toggle-row input:checked {
+  background: #fff;
+}
+.toggle-row input:checked:after {
+  left: 15px;
+  background: #000;
+}
+.toggle-row input:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #333;
+  padding-top: 11px;
+  margin-top: 20px;
+  color: #aaa;
+  font-size: 10px;
+}
+.plain {
+  background: none;
+  border: 0;
+  padding: 3px 0;
+  color: inherit;
+}
+.plain:hover {
+  background: none;
+  color: #fff;
+  text-decoration: underline;
+}
+.app-footer button {
+  font-size: 10px;
+}
+.help {
+  font-size: 11px;
+  color: #aaa;
+  margin: 9px 0;
+}
+.feedback {
+  font-size: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #333;
+  overflow-wrap: anywhere;
+}
+.back {
+  font-size: 12px;
+  margin-bottom: 18px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 12px 0;
+  font-size: 11px;
+}
+.field input,
+.field select {
+  width: 100%;
+}
+.inline {
+  display: flex;
+  gap: 8px;
+}
+.inline input {
+  flex: 1;
+  min-width: 0;
+}
+.inline button {
+  white-space: nowrap;
+}
+.button-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+.button-bar button {
+  font-size: 11px;
+}
+.primary {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+  font-weight: 600;
+}
+.primary:hover {
+  background: #ddd;
+}
+.check {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  margin: 5px 14px 5px 0;
+  font-size: 12px;
+}
+input[type="checkbox"] {
+  accent-color: #fff;
+}
+.full {
+  width: 100%;
+  margin: 10px 0;
+}
+.truncate {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cookie-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #222;
+}
+.cookie-row .plain {
+  text-align: left;
+}
+.cookie-row strong {
+  font-size: 12px;
+  font-weight: 500;
+}
+.danger {
+  color: #ffb5b5;
+}
+.confirm {
+  padding: 14px 0;
+  font-size: 12px;
+}
+.detail > h2 {
+  font-size: 17px;
+  margin-bottom: 14px;
+}
+.empty {
+  padding: 22px 0;
+  color: #aaa;
+  font-size: 12px;
+}
+.trace-step {
+  display: flex;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #333;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.trace-step > strong {
+  font-family: ui-monospace, monospace;
+}
+.trace-step span {
+  min-width: 0;
+}
+.trace-step small {
+  display: block;
+  margin-top: 6px;
+}
+.code-editor {
+  font:
+    12px/1.6 ui-monospace,
+    monospace;
+  min-height: 240px;
+}
+.workspace-shell {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 22px;
+}
+.workspace-shell .app-header {
+  border-bottom: 1px solid #333;
+  padding-bottom: 18px;
+}
+.workspace-shell h1 {
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
+body.sidepanel .workspace-shell {
+  padding: 18px;
+}
+.workspace-shell .clipper {
+  min-height: 0;
+}
+body.sidepanel .clipper textarea {
+  min-height: 300px;
+}
+@media (max-width: 420px) {
+  body.popup {
+    width: 100%;
+  }
+  .app-shell {
+    padding: 16px;
+  }
+  .site-label {
+    max-width: 130px;
+  }
+  .tool-row small {
+    font-size: 10px;
+  }
+  .workspace-shell {
+    padding: 16px;
+  }
+}
+body.popup {
+  height: 600px;
+  overflow: hidden;
+}
+.popup .app-shell {
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+.popup .app-shell > header,
+.popup .app-shell > .search,
+.popup .app-shell > nav,
+.popup .app-shell > footer,
+.popup .app-shell > .back {
+  flex-shrink: 0;
+}
+.popup .app-shell > main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.popup .tool-section {
+  margin-bottom: 16px;
+}
+.popup .tool-row {
+  min-height: 40px;
+  padding: 8px 0;
+}
+.popup .feedback {
+  max-height: 90px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.popup .app-footer {
+  margin-top: 12px;
+}
+.music-page > p {
+  font-size: 13px;
+  color: #bbb;
+  margin: 12px 0;
+}
+.music-page .tool-section {
+  margin-top: 26px;
+}

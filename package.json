@@ -1,0 +1,38 @@
+{
+  "name": "little-helper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun scripts/build.ts",
+    "typecheck": "tsc --noEmit && tsc -p src/github/jsconfig.json",
+    "test": "vitest run",
+    "dev": "bun scripts/build.ts --watch",
+    "check:build": "bun scripts/check-build.ts",
+    "format": "prettier --write src scripts tests manifest.json package.json tsconfig.json vitest.config.ts .github/workflows/check.yml",
+    "format:check": "prettier --check src scripts tests manifest.json package.json tsconfig.json vitest.config.ts .github/workflows/check.yml"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.5.0",
+    "dompurify": "^3.4.17",
+    "gpt-tokenizer": "^2.8.1",
+    "markdown-it": "^15.0.2",
+    "mermaid": "^12.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "turndown": "^7.2.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/chrome": "^0.3.4",
+    "@types/markdown-it": "latest",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/turndown": "^5.0.5",
+    "jsdom": "^29.0.2",
+    "prettier": "^3.9.10",
+    "sharp": "^0.34.0",
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.5"
+  }
+}
