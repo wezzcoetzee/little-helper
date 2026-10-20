@@ -27,7 +27,7 @@ Approved direction A: compact site-first toolbox, true black background, white t
 
 Tab cleanup must start disabled and protect active/pinned/audible/excluded/last tabs. Do not store incognito tab URLs in persistent history. Preserve cookie stores/partitions and save replacements before removing changed identities. Music sends audio only after explicit Listen, cleans up tracks/context, and never exports credentials with preferences. Never log secrets or page captures.
 
-The ignored `github-extension/`, `superlevels/` and `snipsnapp/` folders are reference checkouts, not build inputs. Preserve upstream notices. Keep README feature, install, permission and privacy descriptions aligned with behavior.
+The original reference checkouts have been removed; all build inputs live in this repository. Preserve upstream notices in `licenses/` and `public/`. Keep README feature, install, permission and privacy descriptions aligned with behavior.
 
 ## PRs
 
