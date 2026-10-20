@@ -17,10 +17,13 @@ body {
   background: #000;
   color: #fff;
 }
+html.popup-document,
 body.popup {
   width: 420px;
-  max-height: 600px;
-  overflow-y: auto;
+  min-width: 420px;
+  max-width: 420px;
+  height: 600px;
+  overflow: hidden;
 }
 button,
 input,
@@ -454,30 +457,39 @@ body.sidepanel .clipper textarea {
   min-height: 300px;
 }
 @media (max-width: 420px) {
-  body.popup {
-    width: 100%;
-  }
-  .app-shell {
-    padding: 16px;
-  }
-  .site-label {
-    max-width: 130px;
-  }
-  .tool-row small {
-    font-size: 10px;
-  }
   .workspace-shell {
     padding: 16px;
   }
-}
-body.popup {
-  height: 600px;
-  overflow: hidden;
 }
 .popup .app-shell {
   height: 600px;
   display: flex;
   flex-direction: column;
+}
+.popup .brand,
+.popup .tabs button,
+.popup .app-footer {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.popup .site-label {
+  min-width: 0;
+}
+.popup .action-row .grow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.popup .action-row > small {
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.popup .arrow {
+  flex-shrink: 0;
+}
+.popup .field input[type="range"] {
+  margin-inline: 0;
 }
 .popup .app-shell > header,
 .popup .app-shell > .search,

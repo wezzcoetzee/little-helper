@@ -146,7 +146,7 @@ export function App() {
     {
       id: "clip",
       label: "Clip as Markdown",
-      detail: "Smart, full page or element",
+      detail: "Full page or element",
       group: "site",
       siteOnly: true,
       action: openClipper,
@@ -290,7 +290,7 @@ export function App() {
         </a>
         <span className="site-label" title={host || "Open a website"}>
           {isSite && <i className="site-dot" />}
-          {host || "No website open"}
+          <span className="truncate">{host || "No website open"}</span>
         </span>
       </header>
       {page === "home" ? (
@@ -371,18 +371,10 @@ export function App() {
                 {isGithub && (
                   <Section
                     title="GitHub"
-                    detail={
-                      settings.github_enabled
-                        ? "Enabled on this site"
-                        : "Disabled"
-                    }
+                    detail={settings.github_enabled ? "Enabled" : "Disabled"}
                   >
                     {action("gallery")}
                     {action("reader")}
-                    <p className="help">
-                      Images open in a lightbox. Expand code, tables and
-                      diagrams directly on the page.
-                    </p>
                   </Section>
                 )}
                 <Section title="Site controls">
@@ -486,7 +478,7 @@ export function App() {
         </p>
       )}
       <footer className="app-footer">
-        <span>{busy ? "Working…" : "Preferences saved locally"}</span>
+        <span>{busy ? "Working…" : "Saved locally"}</span>
         <button
           className="plain"
           onClick={() => {
