@@ -4,3 +4,10 @@ dist/
 github-extension/
 superlevels/
 snipsnapp/
+
+coverage/
+*.log
+*.zip
+.env
+.env.*
+!.env.example

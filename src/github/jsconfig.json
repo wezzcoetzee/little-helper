@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "checkJs": true,
+    "strict": true,
+    "noEmit": true,
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["chrome"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "skipLibCheck": true
+  },
+  "include": ["*.js", "*.d.ts"]
+}
