@@ -46,22 +46,28 @@ On `github.com` and `gist.github.com`, including private repositories:
 - Compare before/after images from a two-image table row.
 - Copy, download or open the original media.
 - Expand code, wide tables and GitHub's diagram dialogs.
-- Read Markdown from the file browser or PR changed-files view, with word-level PR changes and locally rendered Mermaid diagrams.
+- Read Markdown from the file browser or PR changed-files view, with word-level PR changes and locally rendered Mermaid diagrams. In a PR's changed files, a book icon sits before the source/rich diff toggle.
+- Find CI bottlenecks: **Bottlenecks** in an Actions run's header (and **Steps** on a job page) or **CI bottlenecks** at the end of a PR's merge box status line opens the run fullscreen with its critical path lit. A PR covers every Actions workflow on its head commit as one run; skipped jobs don't stretch the wall time and non-Actions checks are left out. Timings come from GitHub's job headers using your session, so private repos work. Waits include runner queueing and GitHub's handoff, and jobs still running are left out.
 
-| Where | Input | Action |
-| --- | --- | --- |
-| Lightbox | Left / right arrow | Previous / next media |
-| Lightbox | Pinch or Ctrl+scroll | Zoom at cursor |
-| Lightbox | Scroll / drag | Pan |
-| Lightbox | Double-click | Reset zoom |
-| Lightbox | `s` | Before/after comparison |
-| Lightbox | `c` / `d` / `o` | Copy / download / open original |
-| Reader | `v` | Docs / editorial style |
-| Reader | `x` | Cycle word diff / change bars / off |
-| Reader | `n` | Next changed block |
-| Viewer or reader | Escape | Close |
+Buttons the extension adds to GitHub are teal so they stand out from GitHub's own.
 
-Modifier-click and middle-click retain normal link behavior. Reader style and change-display preferences use Chrome sync storage; other settings remain local.
+| Where            | Input                | Action                                                                                         |
+| ---------------- | -------------------- | ---------------------------------------------------------------------------------------------- |
+| Lightbox         | Left / right arrow   | Previous / next media                                                                          |
+| Lightbox         | Pinch or Ctrl+scroll | Zoom at cursor                                                                                 |
+| Lightbox         | Scroll / drag        | Pan                                                                                            |
+| Lightbox         | Double-click         | Reset zoom                                                                                     |
+| Lightbox         | `s`                  | Before/after comparison                                                                        |
+| Lightbox         | `c` / `d` / `o`      | Copy / download / open original                                                                |
+| Reader           | `v`                  | Docs / editorial style                                                                         |
+| Reader           | `x`                  | Cycle word diff / change bars / off                                                            |
+| Reader           | `n`                  | Next changed block                                                                             |
+| Bottlenecks      | `1`                  | Waterfall: every job on one time axis, waits hatched                                           |
+| Bottlenecks      | `2`                  | Graph: GitHub's job graph with the critical path lit, plus its share of wall time              |
+| Bottlenecks      | `3`                  | Slack: jobs ranked by how much longer they could run without delaying the run; click for steps |
+| Viewer or reader | Escape               | Close                                                                                          |
+
+Modifier-click and middle-click retain normal link behavior. Reader style, change-display and bottlenecks view preferences use Chrome sync storage; other settings remain local.
 
 ### Browser utilities
 
@@ -79,20 +85,20 @@ Modifier-click and middle-click retain normal link behavior. Reader style and ch
 
 ## Privacy and permissions
 
-No backend, analytics or telemetry. Page conversion, token counting, media viewing and custom styles run locally. Settings and histories stay in your Chrome profile, except reader preferences synced by Chrome. Music credentials are local to the profile and are excluded from preference exports. Music identification is the only feature that uploads a recording, and only after pressing Listen. GitHub's reader and media tools fetch the requested files/images using your existing GitHub session.
+No backend, analytics or telemetry. Page conversion, token counting, media viewing and custom styles run locally. Settings and histories stay in your Chrome profile, except reader and bottlenecks view preferences synced by Chrome. Music credentials are local to the profile and are excluded from preference exports. Music identification is the only feature that uploads a recording, and only after pressing Listen. GitHub's reader and media tools fetch the requested files/images using your existing GitHub session.
 
-| Permission | Purpose |
-| --- | --- |
-| HTTP/HTTPS host access | Run site tools and clipper, read current-site cookies, fetch requested GitHub assets and contact your configured ACRCloud host |
-| `activeTab`, `tabs`, `scripting` | Access the active website, clipboard shortcuts, PiP and tab management |
-| `storage` | Local preferences, session captures/activity/traces, synced reader preferences |
-| `alarms` | Check enabled tab cleanup once per minute |
-| `cookies` | Current-site cookie editor |
-| `webRequest`, `webNavigation` | Observe main-frame navigation redirects |
-| `contentSettings` | Per-origin JavaScript settings |
-| `downloads` | Save GitHub media |
-| `contextMenus`, `sidePanel`, `clipboardWrite` | Markdown capture menus, panel and clipboard |
-| `tabCapture` | User-initiated music recording |
+| Permission                                    | Purpose                                                                                                                        |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| HTTP/HTTPS host access                        | Run site tools and clipper, read current-site cookies, fetch requested GitHub assets and contact your configured ACRCloud host |
+| `activeTab`, `tabs`, `scripting`              | Access the active website, clipboard shortcuts, PiP and tab management                                                         |
+| `storage`                                     | Local preferences, session captures/activity/traces, synced reader preferences                                                 |
+| `alarms`                                      | Check enabled tab cleanup once per minute                                                                                      |
+| `cookies`                                     | Current-site cookie editor                                                                                                     |
+| `webRequest`, `webNavigation`                 | Observe main-frame navigation redirects                                                                                        |
+| `contentSettings`                             | Per-origin JavaScript settings                                                                                                 |
+| `downloads`                                   | Save GitHub media                                                                                                              |
+| `contextMenus`, `sidePanel`, `clipboardWrite` | Markdown capture menus, panel and clipboard                                                                                    |
+| `tabCapture`                                  | User-initiated music recording                                                                                                 |
 
 Cookie dismissal clicks known reject controls where supported and hides remaining known banners. Hiding a banner does not itself record a consent decision. Turn the feature off if it interferes with a site.
 

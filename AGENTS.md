@@ -13,9 +13,9 @@ A single Chrome Manifest V3 extension. Bun bundles TypeScript/React UI, Markdown
 
 ## Boundaries
 
-`src/background/index.ts` registers the browser, GitHub and clipper workers. Popup actions send namespaced messages to the relevant content scripts. Clipper capture results are scoped by tab, URL and request. Session storage holds captures, tab activity and redirect traces. Local storage holds preferences and histories; reader display preferences use sync storage.
+`src/background/index.ts` registers the browser, GitHub and clipper workers. Popup actions send namespaced messages to the relevant content scripts. Clipper capture results are scoped by tab, URL and request. Session storage holds captures, tab activity and redirect traces. Local storage holds preferences and histories; reader and bottlenecks display preferences use sync storage.
 
-`src/github/entry.js` gates initialization and inlines CSS. `src/github/diagrams.js` is split into local ESM chunks exposed through the manifest. Do not move diagram output without updating the reader import, manifest and package check.
+`src/github/entry.js` gates initialization and inlines CSS. The reader and bottlenecks views share `dialog.css` inside their own shadow roots. `src/github/diagrams.js` is split into local ESM chunks exposed through the manifest. Do not move diagram output without updating the reader import, manifest and package check.
 
 `src/browser/` retains useful original JavaScript to avoid a broad rewrite. New logic uses strict TypeScript. Keep types inferred where possible, no `any`, and comments for non-obvious invariants only.
 

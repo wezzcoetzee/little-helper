@@ -176,8 +176,89 @@ details-dialog.render-full-screen iframe {
   height: 100% !important;
 }
 
-/* Markdown reader button; the reader's own styles live in reader.css */
+/*
+ * The buttons the extension adds share one accent so they stand out from GitHub's own.
+ * Primer's .btn reads these variables, so setting them recolours it without fighting
+ * its specificity.
+ */
 
+:root {
+  --ghx-accent: #0f766e;
+  --ghx-accent-hover: #115e59;
+  --ghx-accent-active: #134e4a;
+  --ghx-accent-border: #14b8a6;
+}
+
+.ghmd-read,
+.ghci-open {
+  --button-default-fgColor-rest: #fff;
+  --button-default-bgColor-rest: var(--ghx-accent);
+  --button-default-bgColor-hover: var(--ghx-accent-hover);
+  --button-default-bgColor-active: var(--ghx-accent-active);
+  --button-default-borderColor-rest: var(--ghx-accent-border);
+  --button-default-borderColor-hover: var(--ghx-accent-border);
+  --button-default-borderColor-active: var(--ghx-accent-border);
+}
+
+.ghil-expand {
+  background: var(--ghx-accent);
+  border-color: var(--ghx-accent-border);
+}
+
+.ghil-expand:hover {
+  background: var(--ghx-accent-hover);
+}
+
+/* Markdown reader's styles live in reader.css, the bottlenecks view's in bottlenecks.css.
+   Placement: each button sits before GitHub's own controls, so it only needs a gap on its
+   right. Two classes where Primer's .btn, which loads after us, would otherwise win. */
+
+/* Next to Raw when browsing code, or after the path if a PR file header has no controls */
 .ghmd-read {
   margin-inline: 8px;
+}
+
+/* A square icon button before the PR file header's diff toggle, sized like it */
+.ghmd-read.ghmd-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0 8px 0 0;
+}
+
+/* The run's header and a job's header on Actions pages */
+.ghci-open.btn {
+  margin: 0 8px 0 0;
+}
+
+/* On a PR: a link at the end of the merge box's status line */
+.ghci-open.ghci-link {
+  margin: 0 0 0 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--ghx-accent-border);
+  cursor: pointer;
+}
+
+.ghci-open.ghci-link:hover {
+  text-decoration: underline;
+}
+
+.ghci-open.ghci-link:focus-visible {
+  outline: 2px solid var(--ghx-accent-border);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Or floating in the corner until the merge box loads */
+.ghci-open.ghci-float {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 100;
+  margin: 0;
 }

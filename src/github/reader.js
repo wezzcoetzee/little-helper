@@ -2,7 +2,16 @@
 
 import DOMPurify from "dompurify";
 import MarkdownIt from "markdown-it";
+import dialogCss from "./dialog.css" with { type: "text" };
+import { memo } from "./memo.js";
 import css from "./reader.css" with { type: "text" };
+
+/** Octicons' book, 16px. */
+const BOOK_ICON = `<svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M0 1.75A.75.75 0 0 1 .75 1h4.253c1.227 0 2.317.59 3 1.501A3.743 3.743 0 0 1 11.006 1h4.245a.75.75 0 0 1 .75.75v10.5a.75.75 0 0 1-.75.75h-4.507a2.25 2.25 0 0 0-1.591.659l-.622.621a.75.75 0 0 1-1.06 0l-.622-.621A2.25 2.25 0 0 0 5.258 13H.75a.75.75 0 0 1-.75-.75Zm7.251 10.324.004-5.073-.002-2.253A2.25 2.25 0 0 0 5.003 2.5H1.5v9h3.757a3.75 3.75 0 0 1 1.994.574ZM8.755 4.75l-.004 7.322a3.752 3.752 0 0 1 1.992-.572H14.5v-9h-3.495a2.25 2.25 0 0 0-2.25 2.25Z"></path></svg>`;
+
+/** The source and rich diff buttons every Markdown file's header has. */
+const DIFF_TOGGLE =
+  '[aria-label*="source diff" i], [aria-label*="rich diff" i]';
 
 export function setupReader() {
   const MARKDOWN = /\.(md|markdown)$/i;
@@ -49,23 +58,6 @@ export function setupReader() {
     if (typeof response?.text !== "string")
       throw new Error(response?.error ?? "Fetch failed");
     return /** @type {string} */ (response.text);
-  }
-
-  /**
-   * Caches a load by key, forgetting failures so the next attempt retries.
-   * @template T
-   * @param {Map<string, Promise<T>>} cache
-   * @param {string} key
-   * @param {() => Promise<T>} load
-   */
-  function memo(cache, key, load) {
-    let value = cache.get(key);
-    if (!value) {
-      value = load();
-      cache.set(key, value);
-      value.catch(() => cache.delete(key));
-    }
-    return value;
   }
 
   /** @type {Map<string, Promise<PullFile[]>>} */
@@ -809,7 +801,7 @@ export function setupReader() {
     const host = document.createElement("div");
     const root = host.attachShadow({ mode: "open" });
     root.innerHTML = `
-    <style>${css}</style>
+    <style>${dialogCss}${css}</style>
     <dialog tabindex="-1">
       <header class="bar">
         <span class="title"></span>
@@ -1062,8 +1054,9 @@ export function setupReader() {
    * @param {Element} target
    * @param {"beforebegin" | "afterend"} position
    * @param {() => Source} source
+   * @param {{ icon?: boolean }} [options] a book icon instead of the word, for the PR file header
    */
-  function addButton(target, position, source) {
+  function addButton(target, position, source, { icon = false } = {}) {
     const sibling =
       position === "afterend"
         ? target.nextElementSibling
@@ -1073,7 +1066,13 @@ export function setupReader() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "ghmd-read btn btn-sm";
-    button.textContent = "Read";
+    if (icon) {
+      button.classList.add("ghmd-icon");
+      button.innerHTML = BOOK_ICON;
+      button.ariaLabel = button.title = "Read";
+    } else {
+      button.textContent = "Read";
+    }
     button.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -1133,6 +1132,30 @@ export function setupReader() {
     }));
   }
 
+  /**
+   * Where the Read button goes in a PR file header: before the source/rich diff toggle,
+   * or before Viewed without one. Searched outwards from the path no further than
+   * `scope`, so another file's header never matches.
+   * @param {Element} label
+   * @param {Element} scope
+   */
+  function viewControls(label, scope) {
+    for (let el = label.parentElement; el; el = el.parentElement) {
+      const toggle = el.querySelector(DIFF_TOGGLE);
+      if (toggle)
+        return (
+          toggle.closest(
+            '.BtnGroup, [class*="SegmentedControl"], [class*="ButtonGroup"]',
+          ) ?? toggle
+        );
+      const viewed = [...el.querySelectorAll("button, label")].find(
+        (control) => control.textContent?.trim() === "Viewed",
+      );
+      if (viewed) return viewed;
+      if (el === scope) return;
+    }
+  }
+
   /** @param {RegExpMatchArray} match */
   async function syncPull([, owner, repo, number]) {
     const pull = `/${owner}/${repo}/pull/${number}`;
@@ -1140,11 +1163,14 @@ export function setupReader() {
     for (const { path, id, diff } of files) {
       const anchor = document.getElementById(id);
       if (!anchor) continue;
-      const label =
-        findPathLabel(anchor, path) ??
-        (anchor.parentElement && findPathLabel(anchor.parentElement, path));
+      let scope = anchor;
+      let label = findPathLabel(scope, path);
+      if (!label && anchor.parentElement)
+        label = findPathLabel((scope = anchor.parentElement), path);
       if (!label) continue;
-      addButton(label, "afterend", () => ({
+      const controls = viewControls(label, scope);
+      /** @type {() => Source} */
+      const source = () => ({
         title: `${owner}/${repo} · ${path} · #${number}`,
         diff,
         locate: async () => {
@@ -1155,7 +1181,15 @@ export function setupReader() {
             blob: `${location.origin}/${owner}/${repo}/blob/${head}/${encoded}`,
           };
         },
-      }));
+      });
+      if (!controls) {
+        addButton(label, "afterend", source);
+        continue;
+      }
+      // The header can draw its path before its controls; drop the button put up meanwhile.
+      if (label.nextElementSibling?.classList.contains("ghmd-read"))
+        label.nextElementSibling.remove();
+      addButton(controls, "beforebegin", source, { icon: true });
     }
   }
 
