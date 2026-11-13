@@ -3,6 +3,7 @@ import contentCss from "./content.css" with { type: "text" };
 import { setupLightbox } from "./lightbox.js";
 import { setupExpand } from "./expand.js";
 import { setupReader } from "./reader.js";
+import { setupBottlenecks } from "./bottlenecks.js";
 
 async function start() {
   const { github_enabled } = await chrome.storage.local.get({
@@ -17,6 +18,7 @@ async function start() {
   const lightbox = setupLightbox();
   setupExpand(lightbox);
   const reader = setupReader();
+  setupBottlenecks();
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (sender.id !== chrome.runtime.id) return;

@@ -1,0 +1,365 @@
+/* CI bottlenecks view, inside its own shadow root. dialog.css comes first. */
+
+dialog {
+  --critical: #f5a524;
+  --failed: #f85149;
+  --dim: rgb(255 255 255 / 0.45);
+  --faint: rgb(255 255 255 / 0.14);
+  --hatch: repeating-linear-gradient(
+    135deg,
+    var(--faint) 0 2px,
+    transparent 2px 4px
+  );
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 24px 32px 120px;
+}
+
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+h3 {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 24px 0 8px;
+}
+
+.note {
+  color: var(--dim);
+  margin: 0 0 12px;
+}
+
+.time,
+.n,
+.ticks {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Time bars, for jobs and for steps */
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(160px, 280px) 1fr 64px;
+  gap: 12px;
+  align-items: center;
+  height: 18px;
+}
+
+.row .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dim);
+}
+
+.row .time {
+  text-align: right;
+  color: var(--dim);
+}
+
+.row.critical .name {
+  color: #fff;
+}
+
+.row.critical .time {
+  color: var(--critical);
+}
+
+.track {
+  position: relative;
+  height: 10px;
+}
+
+.track i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.track .run {
+  min-width: 2px;
+  background: var(--dim);
+  border-radius: 1px;
+}
+
+.track .wait {
+  background: var(--hatch);
+}
+
+.critical .track .run {
+  background: var(--critical);
+}
+
+.failed .track .run {
+  background: var(--failed);
+}
+
+.skipped .track .run {
+  background: none;
+  border-left: 1px dashed var(--faint);
+}
+
+.axis {
+  height: 16px;
+  color: var(--dim);
+  font-size: 10px;
+}
+
+.ticks {
+  position: relative;
+  height: 100%;
+}
+
+.ticks i {
+  position: absolute;
+  font-style: normal;
+  transform: translateX(-50%);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 12px;
+  color: var(--dim);
+  font-size: 11px;
+}
+
+.legend i {
+  display: inline-block;
+  width: 14px;
+  height: 8px;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+
+.legend .critical {
+  background: var(--critical);
+}
+
+.legend .run {
+  background: var(--dim);
+}
+
+.legend .wait {
+  background: var(--hatch);
+}
+
+/* Graph */
+
+.dag {
+  position: relative;
+}
+
+.dag svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.dag path {
+  fill: none;
+  stroke: var(--faint);
+}
+
+.dag path.critical {
+  stroke: var(--critical);
+  stroke-width: 1.6;
+}
+
+.level {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.node {
+  position: relative;
+  flex: 0 1 200px;
+  min-width: 0;
+  padding: 4px 8px 6px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: #000;
+  font-size: 11px;
+}
+
+.node:hover {
+  text-decoration: none;
+  border-color: var(--dim);
+}
+
+.node .head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.node .name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node .time {
+  flex: none;
+  color: var(--dim);
+}
+
+.node .meter {
+  display: block;
+  height: 2px;
+  margin-top: 4px;
+  background: var(--faint);
+}
+
+.node .meter i {
+  display: block;
+  height: 100%;
+  background: var(--dim);
+}
+
+.node.critical {
+  border-color: var(--critical);
+}
+
+.node.critical .time {
+  color: var(--critical);
+}
+
+.node.critical .meter i {
+  background: var(--critical);
+}
+
+.node.failed {
+  border-color: var(--failed);
+}
+
+.node.skipped {
+  opacity: 0.45;
+  border-style: dashed;
+}
+
+.strip {
+  display: flex;
+  gap: 1px;
+  height: 22px;
+}
+
+.strip span {
+  min-width: 2px;
+  overflow: hidden;
+  padding: 0 4px;
+  line-height: 22px;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.strip .critical {
+  background: var(--critical);
+  color: #000;
+}
+
+.strip .wait {
+  background: var(--hatch);
+  color: var(--dim);
+}
+
+/* Slack table */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 900px;
+}
+
+th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--dim);
+  padding: 4px 16px 6px 0;
+  border-bottom: 1px solid #333;
+}
+
+td {
+  padding: 4px 16px 4px 0;
+  border-bottom: 1px solid #1a1a1a;
+  white-space: nowrap;
+}
+
+tbody tr {
+  cursor: pointer;
+}
+
+tbody tr:hover,
+tbody tr[aria-selected="true"] {
+  background: #111;
+}
+
+.n {
+  text-align: right;
+}
+
+td.name {
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 14px;
+}
+
+tr.critical td.name {
+  padding-left: 0;
+}
+
+tr.critical td.name::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--critical);
+  vertical-align: 1px;
+}
+
+td .inline {
+  display: inline-block;
+  height: 6px;
+  margin-right: 8px;
+  background: var(--dim);
+}
+
+tr.critical td .inline {
+  background: var(--critical);
+}
+
+td.zero {
+  color: var(--critical);
+}
+
+.steps {
+  max-width: 1100px;
+}
