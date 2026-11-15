@@ -568,14 +568,10 @@ function renderGraph(run) {
   }
 
   const longest = Math.max(1, ...run.jobs.map(duration));
-  const dag = el("div", "dag");
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  dag.append(svg);
-  /** @type {Map<Card, HTMLElement[]>} */
-  const nodes = new Map();
+  /** @type {GraphNode[]} */
+  const placed = [];
   for (const level of levels) {
     if (!level) continue;
-    const row = el("div", "level");
     for (const { job, label, card } of level.sort(
       (a, b) => a.job.start - b.job.start,
     )) {
@@ -601,66 +597,336 @@ function renderGraph(run) {
       fill.style.width = `${(duration(job) / longest) * 100}%`;
       meter.append(fill);
       node.append(head, meter);
-      row.append(node);
-      nodes.set(card, [...(nodes.get(card) ?? []), node]);
+      placed.push({ el: node, card, depth: depth(card), x: 0, y: 0 });
     }
-    dag.append(row);
   }
 
   const onPath = new Set(run.path.map((job) => job.card));
-  const draw = () => {
-    const box = dag.getBoundingClientRect();
-    /** @type {SVGPathElement[]} */
-    const lines = [];
-    for (const card of run.cards) {
-      for (const next of card.to) {
-        const critical =
-          onPath.has(card) &&
-          onPath.has(next) &&
-          run.path.some(
-            (job, i) => job.card === card && run.path[i + 1]?.card === next,
-          );
-        for (const from of nodes.get(card) ?? []) {
-          for (const to of nodes.get(next) ?? []) {
-            const a = from.getBoundingClientRect();
-            const b = to.getBoundingClientRect();
-            const x1 = a.left + a.width / 2 - box.left;
-            const y1 = a.bottom - box.top;
-            const x2 = b.left + b.width / 2 - box.left;
-            const y2 = b.top - box.top;
-            const mid = (y1 + y2) / 2;
-            const line = document.createElementNS(
-              "http://www.w3.org/2000/svg",
-              "path",
-            );
-            line.setAttribute(
-              "d",
-              `M${x1},${y1} C${x1},${mid} ${x2},${mid} ${x2},${y2}`,
-            );
-            if (critical) line.classList.add("critical");
-            lines.push(line);
-          }
+  /** @type {GraphEdge[]} */
+  const edges = [];
+  for (const card of run.cards) {
+    for (const next of card.to) {
+      const critical =
+        onPath.has(card) &&
+        onPath.has(next) &&
+        run.path.some(
+          (job, i) => job.card === card && run.path[i + 1]?.card === next,
+        );
+      for (const from of placed.filter((n) => n.card === card)) {
+        for (const to of placed.filter((n) => n.card === next)) {
+          edges.push({ from, to, critical });
         }
       }
     }
-    // Critical lines last, so they draw on top.
-    svg.replaceChildren(
-      ...lines.sort(
-        (a, b) =>
-          Number(a.classList.contains("critical")) -
-          Number(b.classList.contains("critical")),
-      ),
-    );
-  };
-  new ResizeObserver(draw).observe(dag);
+  }
+  // Critical lines last, so they draw on top.
+  edges.sort((a, b) => Number(a.critical) - Number(b.critical));
 
   view.append(
-    dag,
+    graphCanvas(placed, edges),
     el("h3", undefined, `Where the ${formatDuration(run.wall)} goes`),
     pathStrip(run),
     legend(run),
   );
   return view;
+}
+
+/**
+ * @typedef {{ el: HTMLElement, card: Card, depth: number, x: number, y: number }} GraphNode
+ * @typedef {{ from: GraphNode, to: GraphNode, critical: boolean }} GraphEdge
+ * @typedef {"down" | "right"} Flow
+ */
+
+const NODE = { width: 180, height: 32 };
+/** Spacing between node origins, per flow: along a level, then between levels. */
+const SPACING = {
+  down: { along: 200, across: 110 },
+  right: { along: 48, across: 260 },
+};
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+/** Kept across re-renders so live updates don't flip the layout back. */
+/** @type {Flow} */
+let flow = "down";
+
+/**
+ * A pannable, zoomable canvas. Drag the background to pan, wheel to zoom, drag a node
+ * to move it. A drag never follows the node's link, only a click does.
+ * @param {GraphNode[]} nodes
+ * @param {GraphEdge[]} edges
+ */
+function graphCanvas(nodes, edges) {
+  const frame = el("div", "dag");
+  const world = el("div", "world");
+  const svg = document.createElementNS(SVG_NS, "svg");
+  const minimap = document.createElementNS(SVG_NS, "svg");
+  minimap.classList.add("minimap");
+  world.append(svg, ...nodes.map((n) => n.el));
+
+  const bar = el("div", "bar");
+  /** @param {string} label @param {string} title @param {() => void} action */
+  const button = (label, title, action) => {
+    const b = el("button", undefined, label);
+    b.type = "button";
+    b.title = title;
+    b.addEventListener("click", action);
+    bar.append(b);
+    return b;
+  };
+
+  const view = { x: 0, y: 0, k: 1 };
+  const apply = () => {
+    world.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.k})`;
+    drawMinimap();
+  };
+
+  const layout = () => {
+    const gap = SPACING[flow];
+    /** @type {GraphNode[][]} */
+    const rows = [];
+    for (const n of nodes) (rows[n.depth] ??= []).push(n);
+    const widest = Math.max(...rows.map((r) => r?.length ?? 0));
+    rows.forEach((row, level) => {
+      // Centre each level against the widest one.
+      const offset = ((widest - row.length) * gap.along) / 2;
+      row.forEach((n, i) => {
+        const along = offset + i * gap.along;
+        const across = level * gap.across;
+        n.x = flow === "down" ? along : across;
+        n.y = flow === "down" ? across : along;
+      });
+    });
+    for (const n of nodes) place(n);
+    drawEdges();
+  };
+
+  /** @param {GraphNode} n */
+  const place = (n) => {
+    n.el.style.transform = `translate(${n.x}px, ${n.y}px)`;
+  };
+
+  const bounds = () => ({
+    width: Math.max(...nodes.map((n) => n.x)) + NODE.width,
+    height: Math.max(...nodes.map((n) => n.y)) + NODE.height,
+  });
+
+  const drawEdges = () => {
+    svg.replaceChildren(
+      ...edges.map(({ from, to, critical }) => {
+        const line = document.createElementNS(SVG_NS, "path");
+        const [x1, y1, x2, y2] =
+          flow === "down"
+            ? [
+                from.x + NODE.width / 2,
+                from.y + NODE.height,
+                to.x + NODE.width / 2,
+                to.y,
+              ]
+            : [
+                from.x + NODE.width,
+                from.y + NODE.height / 2,
+                to.x,
+                to.y + NODE.height / 2,
+              ];
+        const [mx, my] = [(x1 + x2) / 2, (y1 + y2) / 2];
+        line.setAttribute(
+          "d",
+          flow === "down"
+            ? `M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}`
+            : `M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`,
+        );
+        if (critical) line.classList.add("critical");
+        return line;
+      }),
+    );
+    drawMinimap();
+  };
+
+  const drawMinimap = () => {
+    if (!frame.isConnected) return;
+    const { width, height } = bounds();
+    const pad = 20;
+    minimap.setAttribute(
+      "viewBox",
+      `${-pad} ${-pad} ${width + pad * 2} ${height + pad * 2}`,
+    );
+    const rect = (
+      /** @type {number[]} */ [x, y, w, h],
+      /** @type {string} */ cls,
+    ) => {
+      const r = document.createElementNS(SVG_NS, "rect");
+      r.setAttribute("x", String(x));
+      r.setAttribute("y", String(y));
+      r.setAttribute("width", String(w));
+      r.setAttribute("height", String(h));
+      r.classList.add(cls);
+      return r;
+    };
+    minimap.replaceChildren(
+      ...nodes.map((n) =>
+        rect(
+          [n.x, n.y, NODE.width, NODE.height],
+          n.el.classList.contains("critical") ? "critical" : "job",
+        ),
+      ),
+      rect(
+        [
+          -view.x / view.k,
+          -view.y / view.k,
+          frame.clientWidth / view.k,
+          frame.clientHeight / view.k,
+        ],
+        "viewport",
+      ),
+    );
+  };
+
+  const fit = () => {
+    const { width, height } = bounds();
+    const pad = 24;
+    view.k = Math.min(
+      1,
+      (frame.clientWidth - pad * 2) / width,
+      (frame.clientHeight - pad * 2) / height,
+    );
+    view.x = (frame.clientWidth - width * view.k) / 2;
+    view.y = (frame.clientHeight - height * view.k) / 2;
+    apply();
+  };
+
+  /** @param {number} factor @param {number} cx @param {number} cy */
+  const zoom = (
+    factor,
+    cx = frame.clientWidth / 2,
+    cy = frame.clientHeight / 2,
+  ) => {
+    const k = Math.min(2.5, Math.max(0.2, view.k * factor));
+    // Keep the point under the cursor still.
+    view.x = cx - ((cx - view.x) * k) / view.k;
+    view.y = cy - ((cy - view.y) * k) / view.k;
+    view.k = k;
+    apply();
+  };
+
+  button("fit", "Fit graph (f)", fit);
+  button("−", "Zoom out (-)", () => zoom(1 / 1.2));
+  button("+", "Zoom in (+)", () => zoom(1.2));
+  const flowButton = button("", "Switch direction (r)", () => {
+    flow = flow === "down" ? "right" : "down";
+    flowButton.textContent = flow === "down" ? "→" : "↓";
+    layout();
+    fit();
+  });
+  flowButton.textContent = flow === "down" ? "→" : "↓";
+  button("reset", "Reset layout", () => {
+    layout();
+    fit();
+  });
+  const expand = button("expand", "Expand (e)", () => {
+    const open = frame.classList.toggle("expanded");
+    expand.textContent = open ? "collapse" : "expand";
+    expand.ariaPressed = String(open);
+    requestAnimationFrame(fit);
+  });
+  expand.ariaPressed = "false";
+
+  frame.addEventListener(
+    "wheel",
+    (event) => {
+      event.preventDefault();
+      const box = frame.getBoundingClientRect();
+      zoom(
+        Math.exp(-event.deltaY * 0.0015),
+        event.clientX - box.left,
+        event.clientY - box.top,
+      );
+    },
+    { passive: false },
+  );
+
+  /** @type {{ x: number, y: number, node?: GraphNode, ox: number, oy: number, moved: boolean } | undefined} */
+  let drag;
+  frame.addEventListener("pointerdown", (event) => {
+    if (
+      event.button !== 0 ||
+      /** @type {Element} */ (event.target).closest(".bar")
+    )
+      return;
+    const hit = /** @type {Element} */ (event.target).closest(".node");
+    const node = nodes.find((n) => n.el === hit);
+    drag = {
+      x: event.clientX,
+      y: event.clientY,
+      node,
+      ox: node ? node.x : view.x,
+      oy: node ? node.y : view.y,
+      moved: false,
+    };
+    frame.setPointerCapture(event.pointerId);
+  });
+  frame.addEventListener("pointermove", (event) => {
+    if (!drag) return;
+    const dx = event.clientX - drag.x;
+    const dy = event.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+    drag.moved = true;
+    frame.classList.add("dragging");
+    if (drag.node) {
+      drag.node.x = drag.ox + dx / view.k;
+      drag.node.y = drag.oy + dy / view.k;
+      place(drag.node);
+      drawEdges();
+    } else {
+      view.x = drag.ox + dx;
+      view.y = drag.oy + dy;
+      apply();
+    }
+  });
+  const end = () => {
+    frame.classList.remove("dragging");
+    // Swallow the click that ends a drag so moving a node doesn't open its job.
+    if (drag?.moved) {
+      frame.addEventListener("click", (e) => e.preventDefault(), {
+        capture: true,
+        once: true,
+      });
+    }
+    drag = undefined;
+  };
+  frame.addEventListener("pointerup", end);
+  frame.addEventListener("pointercancel", end);
+
+  frame.tabIndex = 0;
+  frame.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    /** @type {Record<string, () => void>} */
+    const keys = {
+      f: fit,
+      e: () => expand.click(),
+      r: () => flowButton.click(),
+      "+": () => zoom(1.2),
+      "=": () => zoom(1.2),
+      "-": () => zoom(1 / 1.2),
+    };
+    const action = keys[event.key];
+    if (!action) return;
+    event.preventDefault();
+    event.stopPropagation();
+    action();
+  });
+
+  frame.append(world, bar, minimap);
+  layout();
+  // Fit once the frame has a size, and again when it changes.
+  let fitted = false;
+  new ResizeObserver(() => {
+    if (!frame.clientWidth) return;
+    if (!fitted) {
+      fitted = true;
+      fit();
+    } else drawMinimap();
+  }).observe(frame);
+  return frame;
 }
 
 /**
