@@ -4,6 +4,7 @@ import DOMPurify from "dompurify";
 import MarkdownIt from "markdown-it";
 import dialogCss from "./dialog.css" with { type: "text" };
 import { memo } from "./memo.js";
+import { closeOnBack } from "./history.js";
 import css from "./reader.css" with { type: "text" };
 
 /** Octicons' book, 16px. */
@@ -1022,6 +1023,7 @@ export function setupReader() {
     parts.toc.replaceChildren();
     applySettings();
     parts.dialog.showModal();
+    closeOnBack(parts.dialog);
     parts.dialog.focus();
     parts.scroll.scrollTop = 0;
 
