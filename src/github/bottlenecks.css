@@ -167,13 +167,44 @@ h3 {
 
 .dag {
   position: relative;
+  height: 420px;
+  overflow: hidden;
+  border: 1px solid #222;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
-.dag svg {
-  position: absolute;
+.dag.dragging {
+  cursor: grabbing;
+}
+
+.dag.expanded {
+  position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  z-index: 10;
+  height: auto;
+  background: #000;
+  border: 0;
+}
+
+.dag:focus-visible {
+  outline: 1px solid var(--dim);
+}
+
+.dag .world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+.dag svg:not(.minimap) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
   overflow: visible;
   pointer-events: none;
 }
@@ -188,17 +219,62 @@ h3 {
   stroke-width: 1.6;
 }
 
-.level {
+.dag .bar {
+  position: absolute;
+  top: 6px;
+  right: 6px;
   display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 28px;
+  gap: 4px;
+}
+
+.dag .bar button {
+  padding: 1px 6px;
+  border: 1px solid #333;
+  background: #000;
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.dag .bar button:hover,
+.dag .bar button[aria-pressed="true"] {
+  border-color: var(--dim);
+}
+
+.dag .minimap {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 140px;
+  height: 84px;
+  border: 1px solid #333;
+  background: #000;
+  pointer-events: none;
+}
+
+.minimap .job {
+  fill: #444;
+}
+
+.minimap .critical {
+  fill: var(--critical);
+}
+
+.minimap .viewport {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 8;
+  vector-effect: non-scaling-stroke;
 }
 
 .node {
-  position: relative;
-  flex: 0 1 200px;
-  min-width: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 180px;
+  height: 32px;
   padding: 4px 8px 6px;
   border: 1px solid #333;
   border-radius: 4px;
