@@ -53,6 +53,7 @@ Buttons the extension adds to GitHub are teal so they stand out from GitHub's ow
 
 | Where            | Input                | Action                                                                                         |
 | ---------------- | -------------------- | ---------------------------------------------------------------------------------------------- |
+| Any dialog       | Browser Back         | Close the dialog without leaving the page                                                      |
 | Lightbox         | Left / right arrow   | Previous / next media                                                                          |
 | Lightbox         | Pinch or Ctrl+scroll | Zoom at cursor                                                                                 |
 | Lightbox         | Scroll / drag        | Pan                                                                                            |

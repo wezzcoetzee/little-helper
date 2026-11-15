@@ -1,5 +1,7 @@
 // @ts-check
 
+import { closeOnBack } from "./history.js";
+
 export function setupLightbox() {
   /** @typedef {HTMLImageElement | HTMLVideoElement} Media */
 
@@ -377,6 +379,7 @@ export function setupLightbox() {
     state.items = index === -1 ? [source] : items;
     const { dialog } = getLightbox();
     dialog.showModal();
+    closeOnBack(dialog);
     dialog.focus();
     show(Math.max(index, 0));
   }

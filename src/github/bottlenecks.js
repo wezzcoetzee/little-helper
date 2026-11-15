@@ -3,6 +3,7 @@
 import css from "./bottlenecks.css" with { type: "text" };
 import dialogCss from "./dialog.css" with { type: "text" };
 import { memo } from "./memo.js";
+import { closeOnBack } from "./history.js";
 
 /**
  * A workflow run's summary page, including a re-run attempt.
@@ -1189,6 +1190,7 @@ async function openBottlenecks(title, load, job = "") {
   parts.content.replaceChildren(el("p", "note", "Loading job timings…"));
   showView(currentView);
   parts.dialog.showModal();
+  closeOnBack(parts.dialog);
   parts.dialog.focus();
 
   try {
