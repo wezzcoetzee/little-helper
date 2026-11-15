@@ -534,8 +534,20 @@ function renderWaterfall(run) {
 }
 
 /**
- * GitHub's layout, top to bottom: each card sits one level below the deepest card it
- * waits on. A matrix shows as one node, timed by its slowest job.
+ * Splits off the first " / " segment, usually the workflow, so nodes sharing it can
+ * drop it and show the part that tells them apart.
+ * @param {string} label
+ */
+export function splitLabel(label) {
+  const at = label.indexOf(" / ");
+  return at < 0
+    ? { group: "", name: label }
+    : { group: label.slice(0, at), name: label.slice(at + 3) };
+}
+
+/**
+ * GitHub's layout: each card sits one level after the deepest card it waits on. A
+ * matrix shows as one node, timed by its slowest job.
  * @param {Run} run
  */
 function renderGraph(run) {
@@ -554,7 +566,7 @@ function renderGraph(run) {
     return value;
   };
 
-  /** @type {{ job: Job, label: string, card: Card }[][]} */
+  /** @type {{ job: Job, card: Card, group: string, name: string }[][]} */
   const levels = [];
   for (const card of run.cards) {
     const members = card.matrix
@@ -564,7 +576,7 @@ function renderGraph(run) {
       const label = card.matrix
         ? `${card.label || job.name} ×${card.jobs.length}`
         : job.name;
-      (levels[depth(card)] ??= []).push({ job, label, card });
+      (levels[depth(card)] ??= []).push({ job, card, ...splitLabel(label) });
     }
   }
 
@@ -573,8 +585,9 @@ function renderGraph(run) {
   const placed = [];
   for (const level of levels) {
     if (!level) continue;
-    for (const { job, label, card } of level.sort(
-      (a, b) => a.job.start - b.job.start,
+    let lastGroup = "";
+    for (const { job, card, group, name } of level.sort(
+      (a, b) => a.group.localeCompare(b.group) || a.job.start - b.job.start,
     )) {
       const node = el(
         "a",
@@ -582,9 +595,14 @@ function renderGraph(run) {
       );
       node.href = job.href;
       node.title = job.name;
+      // A link drags natively, and Chrome cancels the pointer events moving the node.
+      node.draggable = false;
+      // Name each run of same-workflow nodes once, above its first node.
+      if (group && group !== lastGroup) node.append(el("span", "group", group));
+      lastGroup = group;
       const head = el("span", "head");
       head.append(
-        el("span", "name", label),
+        el("span", "name", name),
         el(
           "span",
           "time",
@@ -638,17 +656,38 @@ function renderGraph(run) {
  * @typedef {"down" | "right"} Flow
  */
 
-const NODE = { width: 180, height: 32 };
-/** Spacing between node origins, per flow: along a level, then between levels. */
+const NODE = { width: 220, height: 34 };
+/**
+ * Spacing between node origins at 1× spacing, per flow: along a level, then between
+ * levels. Leaves room above each node for its workflow name.
+ */
 const SPACING = {
-  down: { along: 200, across: 110 },
-  right: { along: 48, across: 260 },
+  down: { along: 240, across: 110 },
+  right: { along: 58, across: 300 },
 };
+const SPACING_RANGE = { min: 0.6, max: 2.2, step: 0.2 };
+/** Fit stops here; a bigger graph pans instead of shrinking to unreadable text. */
+const MIN_FIT = 0.75;
 const SVG_NS = "http://www.w3.org/2000/svg";
 
+/** Synced with the other display preferences. */
+const GRAPH_KEY = "github_bottlenecks_graph";
 /** Kept across re-renders so live updates don't flip the layout back. */
-/** @type {Flow} */
-let flow = "down";
+const graphPrefs = { flow: /** @type {Flow} */ ("right"), spacing: 1 };
+
+/** @param {number} value */
+const clampSpacing = (value) =>
+  Math.round(
+    Math.min(SPACING_RANGE.max, Math.max(SPACING_RANGE.min, value)) * 10,
+  ) / 10;
+
+/** @param {unknown} stored */
+function loadGraphPrefs(stored) {
+  if (!stored || typeof stored !== "object") return;
+  const { flow, spacing } = /** @type {Record<string, unknown>} */ (stored);
+  if (flow === "down" || flow === "right") graphPrefs.flow = flow;
+  if (typeof spacing === "number") graphPrefs.spacing = clampSpacing(spacing);
+}
 
 /**
  * A pannable, zoomable canvas. Drag the background to pan, wheel to zoom, drag a node
@@ -682,7 +721,11 @@ function graphCanvas(nodes, edges) {
   };
 
   const layout = () => {
-    const gap = SPACING[flow];
+    const { flow, spacing } = graphPrefs;
+    const gap = {
+      along: SPACING[flow].along * spacing,
+      across: SPACING[flow].across * spacing,
+    };
     /** @type {GraphNode[][]} */
     const rows = [];
     for (const n of nodes) (rows[n.depth] ??= []).push(n);
@@ -706,12 +749,20 @@ function graphCanvas(nodes, edges) {
     n.el.style.transform = `translate(${n.x}px, ${n.y}px)`;
   };
 
-  const bounds = () => ({
-    width: Math.max(...nodes.map((n) => n.x)) + NODE.width,
-    height: Math.max(...nodes.map((n) => n.y)) + NODE.height,
-  });
+  /** Dragged nodes can land left of or above the origin, so measure both ends. */
+  const bounds = () => {
+    const x = Math.min(...nodes.map((n) => n.x));
+    const y = Math.min(...nodes.map((n) => n.y));
+    return {
+      x,
+      y,
+      width: Math.max(...nodes.map((n) => n.x)) + NODE.width - x,
+      height: Math.max(...nodes.map((n) => n.y)) + NODE.height - y,
+    };
+  };
 
   const drawEdges = () => {
+    const { flow } = graphPrefs;
     svg.replaceChildren(
       ...edges.map(({ from, to, critical }) => {
         const line = document.createElementNS(SVG_NS, "path");
@@ -745,11 +796,11 @@ function graphCanvas(nodes, edges) {
 
   const drawMinimap = () => {
     if (!frame.isConnected) return;
-    const { width, height } = bounds();
+    const { x, y, width, height } = bounds();
     const pad = 20;
     minimap.setAttribute(
       "viewBox",
-      `${-pad} ${-pad} ${width + pad * 2} ${height + pad * 2}`,
+      `${x - pad} ${y - pad} ${width + pad * 2} ${height + pad * 2}`,
     );
     const rect = (
       /** @type {number[]} */ [x, y, w, h],
@@ -783,15 +834,22 @@ function graphCanvas(nodes, edges) {
   };
 
   const fit = () => {
-    const { width, height } = bounds();
+    const { x, y, width, height } = bounds();
     const pad = 24;
-    view.k = Math.min(
-      1,
-      (frame.clientWidth - pad * 2) / width,
-      (frame.clientHeight - pad * 2) / height,
+    const room = {
+      width: frame.clientWidth - pad * 2,
+      height: frame.clientHeight - pad * 2,
+    };
+    view.k = Math.max(
+      MIN_FIT,
+      Math.min(1, room.width / width, room.height / height),
     );
-    view.x = (frame.clientWidth - width * view.k) / 2;
-    view.y = (frame.clientHeight - height * view.k) / 2;
+    // Centre an axis that fits; otherwise start at its first node and pan from there.
+    /** @param {number} start @param {number} size @param {number} space */
+    const offset = (start, size, space) =>
+      pad + Math.max(0, (space - size * view.k) / 2) - start * view.k;
+    view.x = offset(x, width, room.width);
+    view.y = offset(y, height, room.height);
     apply();
   };
 
@@ -812,13 +870,41 @@ function graphCanvas(nodes, edges) {
   button("fit", "Fit graph (f)", fit);
   button("−", "Zoom out (-)", () => zoom(1 / 1.2));
   button("+", "Zoom in (+)", () => zoom(1.2));
-  const flowButton = button("", "Switch direction (r)", () => {
-    flow = flow === "down" ? "right" : "down";
-    flowButton.textContent = flow === "down" ? "→" : "↓";
+  /** @param {Flow} next */
+  const setFlow = (next) => {
+    graphPrefs.flow = next;
+    for (const [value, b] of flowButtons) b.ariaPressed = String(value === next);
+    chrome.storage.sync.set({ [GRAPH_KEY]: graphPrefs });
     layout();
     fit();
-  });
-  flowButton.textContent = flow === "down" ? "→" : "↓";
+  };
+  /** @type {[Flow, HTMLButtonElement][]} */
+  const flowButtons = [
+    ["right", button("horizontal", "Left to right (r)", () => setFlow("right"))],
+    ["down", button("vertical", "Top to bottom (r)", () => setFlow("down"))],
+  ];
+  for (const [value, b] of flowButtons)
+    b.ariaPressed = String(value === graphPrefs.flow);
+
+  /**
+   * Scales positions rather than re-laying out, so dragged nodes keep their places.
+   * @param {number} step
+   */
+  const space = (step) => {
+    const next = clampSpacing(graphPrefs.spacing + step);
+    const ratio = next / graphPrefs.spacing;
+    graphPrefs.spacing = next;
+    chrome.storage.sync.set({ [GRAPH_KEY]: graphPrefs });
+    for (const n of nodes) {
+      n.x *= ratio;
+      n.y *= ratio;
+      place(n);
+    }
+    drawEdges();
+  };
+  bar.append(el("span", "label", "spacing"));
+  button("−", "Less space between nodes ([)", () => space(-SPACING_RANGE.step));
+  button("+", "More space between nodes (])", () => space(SPACING_RANGE.step));
   button("reset", "Reset layout", () => {
     layout();
     fit();
@@ -863,14 +949,17 @@ function graphCanvas(nodes, edges) {
       oy: node ? node.y : view.y,
       moved: false,
     };
-    frame.setPointerCapture(event.pointerId);
   });
   frame.addEventListener("pointermove", (event) => {
     if (!drag) return;
     const dx = event.clientX - drag.x;
     const dy = event.clientY - drag.y;
     if (!drag.moved && Math.hypot(dx, dy) < 4) return;
-    drag.moved = true;
+    if (!drag.moved) {
+      // Capture only once it's a drag: a captured click lands on the frame, not the link.
+      frame.setPointerCapture(event.pointerId);
+      drag.moved = true;
+    }
     frame.classList.add("dragging");
     if (drag.node) {
       drag.node.x = drag.ox + dx / view.k;
@@ -904,7 +993,9 @@ function graphCanvas(nodes, edges) {
     const keys = {
       f: fit,
       e: () => expand.click(),
-      r: () => flowButton.click(),
+      r: () => setFlow(graphPrefs.flow === "down" ? "right" : "down"),
+      "[": () => space(-SPACING_RANGE.step),
+      "]": () => space(SPACING_RANGE.step),
       "+": () => zoom(1.2),
       "=": () => zoom(1.2),
       "-": () => zoom(1 / 1.2),
@@ -1375,9 +1466,10 @@ function sync() {
 }
 
 export function setupBottlenecks() {
-  chrome.storage.sync.get(VIEW_KEY).then((stored) => {
+  chrome.storage.sync.get([VIEW_KEY, GRAPH_KEY]).then((stored) => {
     currentView =
       VIEWS.find((view) => view === stored[VIEW_KEY]) ?? currentView;
+    loadGraphPrefs(stored[GRAPH_KEY]);
   });
 
   // GitHub navigates without reloading and re-renders the graph as jobs update.
