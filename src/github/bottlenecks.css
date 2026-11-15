@@ -237,6 +237,13 @@ h3 {
   cursor: pointer;
 }
 
+.dag .bar .label {
+  align-self: center;
+  margin-left: 6px;
+  color: var(--dim);
+  font-size: 11px;
+}
+
 .dag .bar button:hover,
 .dag .bar button[aria-pressed="true"] {
   border-color: var(--dim);
@@ -273,13 +280,26 @@ h3 {
   top: 0;
   left: 0;
   box-sizing: border-box;
-  width: 180px;
-  height: 32px;
+  width: 220px;
+  height: 34px;
   padding: 4px 8px 6px;
   border: 1px solid #333;
   border-radius: 4px;
   background: #000;
   font-size: 11px;
+}
+
+.node .group {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  max-width: 100%;
+  margin-bottom: 3px;
+  overflow: hidden;
+  color: var(--dim);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .node:hover {

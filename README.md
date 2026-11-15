@@ -64,11 +64,11 @@ Buttons the extension adds to GitHub are teal so they stand out from GitHub's ow
 | Reader           | `x`                  | Cycle word diff / change bars / off                                                            |
 | Reader           | `n`                  | Next changed block                                                                             |
 | Bottlenecks      | `1`                  | Waterfall: every job on one time axis, waits hatched                                           |
-| Bottlenecks      | `2`                  | Graph: pannable, zoomable job graph (drag nodes, expand, flip direction) with the critical path lit           |
+| Bottlenecks      | `2`                  | Graph: pannable, zoomable job graph (drag nodes, `[`/`]` spacing, `r` horizontal or vertical, expand) with the critical path lit |
 | Bottlenecks      | `3`                  | Slack: jobs ranked by how much longer they could run without delaying the run; click for steps |
 | Viewer or reader | Escape               | Close                                                                                          |
 
-Modifier-click and middle-click retain normal link behavior. Reader style, change-display and bottlenecks view preferences use Chrome sync storage; other settings remain local.
+Modifier-click and middle-click retain normal link behavior. Reader style, change-display, bottlenecks view and graph layout preferences use Chrome sync storage; other settings remain local.
 
 ### Browser utilities
 

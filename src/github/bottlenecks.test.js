@@ -1,6 +1,6 @@
 // @ts-check
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { slack, timeRun } from "./bottlenecks.js";
+import { slack, splitLabel, timeRun } from "./bottlenecks.js";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -69,5 +69,20 @@ describe("CI bottlenecks", () => {
     expect(slack(lint.jobs[0], run.wall)).toBe(110);
     expect(slack(test.jobs[0], run.wall)).toBe(0);
     expect(slack(build.jobs[0], run.wall)).toBe(0);
+  });
+});
+
+describe("splitLabel", () => {
+  it("moves the workflow into the group and keeps the rest of the path", () => {
+    expect(
+      splitLabel("Pull Request vello-forms-consumer / build / docker-build"),
+    ).toEqual({
+      group: "Pull Request vello-forms-consumer",
+      name: "build / docker-build",
+    });
+  });
+
+  it("leaves a name without a workflow ungrouped", () => {
+    expect(splitLabel("lint")).toEqual({ group: "", name: "lint" });
   });
 });
