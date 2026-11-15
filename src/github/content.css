@@ -233,25 +233,9 @@ details-dialog.render-full-screen iframe {
   margin: 0 8px 0 0;
 }
 
-/* On a PR: a link at the end of the merge box's status line */
-.ghci-open.ghci-link {
-  margin: 0 0 0 4px;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  color: var(--ghx-accent-border);
-  cursor: pointer;
-}
-
-.ghci-open.ghci-link:hover {
-  text-decoration: underline;
-}
-
-.ghci-open.ghci-link:focus-visible {
-  outline: 2px solid var(--ghx-accent-border);
-  outline-offset: 2px;
-  border-radius: 2px;
+/* On a PR: beside the merge box's header actions */
+.ghci-open.ghci-anchored {
+  align-self: center;
 }
 
 /* Or floating in the corner until the merge box loads */
