@@ -1041,34 +1041,36 @@ const MERGE_ACTION =
   /^(update branch|(enable|disable) auto-merge|squash and merge|rebase and merge|merge pull request|merge when ready|ready for review|restore branch|delete branch|revert)( \(.+\))?$/i;
 
 /**
- * The status line under the heading that shares a merge box section with its first
- * action, as in "Resolve the merge conflicts before this can merge." Searched only a
- * few levels up from the action, since further out the PR's own title is a heading too.
+ * The row holding the merge box's header actions: the closest ancestor of the first
+ * action that isn't its split-button group, so ours lands beside "Update branch" and
+ * not inside its dropdown pair.
  */
-function mergeBoxStatus() {
+function mergeBoxActions() {
   const action = [...document.querySelectorAll("button")].find((button) =>
     MERGE_ACTION.test(button.textContent?.trim() ?? ""),
   );
   let el = action?.parentElement;
-  for (let depth = 0; el && depth < 6; depth++, el = el.parentElement) {
-    const heading = el.querySelector("h2, h3, h4");
-    if (!heading) continue;
-    const status =
-      heading.nextElementSibling ?? heading.parentElement?.nextElementSibling;
-    return status && !status.contains(action ?? null) ? status : undefined;
+  while (el?.parentElement && /ButtonGroup/i.test(el.className)) {
+    el = el.parentElement;
   }
+  return el && action
+    ? {
+        row: el,
+        first: [...el.children].find((child) => child.contains(action)),
+      }
+    : undefined;
 }
 
 /** @type {HTMLButtonElement | undefined} */
 let pullButton;
 
 /**
- * Adds the button as a link at the end of the merge box's status line once it shows,
- * and floats it on <body> until then, or if GitHub changes their wording. It only goes
- * in next to nodes that already exist and never moves React's own: inserted among the
- * tabs before React had hydrated them, it blanked them. If React redraws the status
- * line and drops it, the next sync adds a new one. Follows GitHub's in-page navigation
- * between PRs.
+ * Adds the button just before the merge box's header actions once they show, and
+ * floats it on <body> until then, or if GitHub changes their wording. It only goes in
+ * next to nodes that already exist and never moves React's own: inserted among the
+ * tabs before React had hydrated them, it blanked them. If React redraws the row and
+ * drops it, the next sync adds a new one. Follows GitHub's in-page navigation between
+ * PRs.
  * @param {RegExpMatchArray | null} match
  */
 function syncPull(match) {
@@ -1081,7 +1083,7 @@ function syncPull(match) {
     pullButton = undefined;
   }
   if (!match || !pull) return;
-  if (pullButton?.classList.contains("ghci-link")) return;
+  if (pullButton?.classList.contains("ghci-anchored")) return;
 
   if (!pullButton) {
     const title = `${match[1]}/${match[2]} #${match[3]}`;
@@ -1090,11 +1092,11 @@ function syncPull(match) {
     );
     pullButton.dataset.pull = pull;
   }
-  const status = mergeBoxStatus();
-  pullButton.className = status
-    ? "ghci-open ghci-link"
-    : "ghci-open btn ghci-float";
-  if (status) status.append(pullButton);
+  const actions = mergeBoxActions();
+  pullButton.className = actions
+    ? "ghci-open btn btn-sm ghci-anchored"
+    : "ghci-open btn btn-sm ghci-float";
+  if (actions?.first) actions.first.before(pullButton);
   else if (!pullButton.isConnected) document.body.append(pullButton);
 }
 
