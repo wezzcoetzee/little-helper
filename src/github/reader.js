@@ -810,7 +810,7 @@ export function setupReader() {
         <span class="seg cycle" role="group" aria-label="Style">
           ${["editorial", "docs"].map((theme) => `<button type="button" data-theme-option="${theme}">${theme} <kbd>v</kbd></button>`).join("")}
         </span>
-        <span class="seg cycle" role="group" aria-label="Changes">
+        <span class="seg cycle changes" role="group" aria-label="Changes">
           ${CHANGES_MODES.map((mode) => `<button type="button" data-changes-option="${mode}">${mode} <kbd>x</kbd></button>`).join("")}
         </span>
         <button type="button" class="close" aria-label="Close"><kbd>esc</kbd></button>
