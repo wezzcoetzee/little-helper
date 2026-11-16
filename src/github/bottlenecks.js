@@ -704,13 +704,21 @@ function graphCanvas(nodes, edges) {
   world.append(svg, ...nodes.map((n) => n.el));
 
   const bar = el("div", "bar");
+  let group = bar;
+  /** Later buttons join this segmented group. @param {string} label */
+  const startGroup = (label) => {
+    group = el("div", "seg");
+    group.role = "group";
+    group.ariaLabel = label;
+    bar.append(group);
+  };
   /** @param {string} label @param {string} title @param {() => void} action */
   const button = (label, title, action) => {
     const b = el("button", undefined, label);
     b.type = "button";
     b.title = title;
     b.addEventListener("click", action);
-    bar.append(b);
+    group.append(b);
     return b;
   };
 
@@ -867,6 +875,7 @@ function graphCanvas(nodes, edges) {
     apply();
   };
 
+  startGroup("Zoom");
   button("fit", "Fit graph (f)", fit);
   button("−", "Zoom out (-)", () => zoom(1 / 1.2));
   button("+", "Zoom in (+)", () => zoom(1.2));
@@ -878,6 +887,7 @@ function graphCanvas(nodes, edges) {
     layout();
     fit();
   };
+  startGroup("Direction");
   /** @type {[Flow, HTMLButtonElement][]} */
   const flowButtons = [
     ["right", button("horizontal", "Left to right (r)", () => setFlow("right"))],
@@ -903,8 +913,10 @@ function graphCanvas(nodes, edges) {
     drawEdges();
   };
   bar.append(el("span", "label", "spacing"));
+  startGroup("Spacing");
   button("−", "Less space between nodes ([)", () => space(-SPACING_RANGE.step));
   button("+", "More space between nodes (])", () => space(SPACING_RANGE.step));
+  startGroup("Layout");
   button("reset", "Reset layout", () => {
     layout();
     fit();
@@ -1201,15 +1213,14 @@ function createDialog() {
   root.innerHTML = `
     <style>${dialogCss}${css}</style>
     <dialog tabindex="-1">
-      <header class="bar">
+      <header class="top">
         <span class="title"></span>
-        <span class="summary"></span>
-        <span class="switch">
-          ${VIEWS.map((view) => `<button type="button" data-view="${view}">${view}</button>`).join("")}
-          <kbd>1 2 3</kbd>
+        <span class="seg" role="group" aria-label="View">
+          ${VIEWS.map((view, i) => `<button type="button" data-view="${view}">${view} <kbd>${i + 1}</kbd></button>`).join("")}
         </span>
-        <button type="button" class="close">esc</button>
+        <button type="button" class="close" aria-label="Close"><kbd>esc</kbd></button>
       </header>
+      <dl class="stats" hidden></dl>
       <div class="scroll"><div class="content"></div></div>
     </dialog>`;
   document.body.append(host);
@@ -1222,7 +1233,7 @@ function createDialog() {
     root,
     dialog: /** @type {HTMLDialogElement} */ (find("dialog")),
     title: find(".title"),
-    summary: find(".summary"),
+    stats: find(".stats"),
     content: find(".content"),
   };
 
@@ -1277,7 +1288,7 @@ async function openBottlenecks(title, load, job = "") {
   // Not remembered, so the view picked last still opens next time.
   if (job) currentView = "slack";
   parts.title.textContent = title;
-  parts.summary.textContent = "";
+  parts.stats.hidden = true;
   parts.content.replaceChildren(el("p", "note", "Loading job timings…"));
   showView(currentView);
   parts.dialog.showModal();
@@ -1291,12 +1302,19 @@ async function openBottlenecks(title, load, job = "") {
     shown = run;
     const waited = run.path.reduce((total, job) => total + wait(job), 0);
     const runner = run.jobs.reduce((total, job) => total + duration(job), 0);
-    parts.summary.textContent = [
-      `${formatDuration(run.wall)} wall`,
-      `${run.path.length} ${run.path.length === 1 ? "job" : "jobs"} on critical path`,
-      `${formatDuration(waited)} waiting on it`,
-      `${formatDuration(runner)} runner time`,
-    ].join(" · ");
+    parts.stats.replaceChildren(
+      ...[
+        ["wall time", formatDuration(run.wall)],
+        ["on critical path", `${run.path.length} ${run.path.length === 1 ? "job" : "jobs"}`, "critical"],
+        ["waiting on it", formatDuration(waited)],
+        ["runner time", formatDuration(runner)],
+      ].map(([label, value, className]) => {
+        const stat = el("div", className);
+        stat.append(el("dt", undefined, label), el("dd", undefined, value));
+        return stat;
+      }),
+    );
+    parts.stats.hidden = false;
     showView(currentView);
   } catch (error) {
     if (opened !== openCount) return;
