@@ -42,65 +42,104 @@ dialog::backdrop {
   display: none !important;
 }
 
-/* Top bar */
+/* Top bar: title, a dim summary, segmented toggles and a close key */
 
-.bar {
+.top {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 12px 24px;
+  gap: 12px;
+  height: 40px;
+  padding: 0 12px 0 20px;
   border-bottom: 1px solid #222;
-  font:
-    12px ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace;
+  font-size: 12px;
+  line-height: 1;
 }
 
 .title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* Without a summary, the title takes the spare width instead. */
+.title:has(+ .seg),
+.summary {
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: rgb(255 255 255 / 0.5);
 }
 
-.summary {
-  opacity: 0.55;
-}
+/* Segmented toggles, shared with the bottlenecks graph toolbar. */
 
-.switch {
+.seg {
   display: flex;
-  gap: 10px;
+  flex: none;
+  border: 1px solid #333;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-/* Author display rules would otherwise override the hidden attribute. */
-.bar [hidden] {
-  display: none;
-}
-
-.bar button {
+.seg button,
+.top .close {
   all: unset;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 9px;
+  color: rgb(255 255 255 / 0.55);
   cursor: pointer;
-  opacity: 0.55;
+  text-transform: capitalize;
+  white-space: nowrap;
 }
 
-.bar button:hover,
-.bar button[aria-pressed="true"] {
-  opacity: 1;
+.seg button + button {
+  border-left: 1px solid #333;
 }
 
-.bar button[aria-pressed="true"] {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.seg button:hover,
+.top .close:hover {
+  color: #fff;
 }
 
-.bar button:focus-visible {
+.seg button[aria-pressed="true"] {
+  background: #fff;
+  color: #000;
+}
+
+.top .close {
+  border: 1px solid #333;
+  border-radius: 4px;
+}
+
+.top .close:hover {
+  border-color: #555;
+}
+
+:is(.seg button, .top .close):focus-visible {
   outline: 1px solid #fff;
-  outline-offset: 2px;
+  outline-offset: -3px;
 }
 
-.bar kbd {
-  font: inherit;
-  opacity: 0.55;
+.seg[aria-pressed="true"]:focus-visible {
+  outline-color: #000;
+}
+
+kbd {
+  font:
+    10px ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  opacity: 0.6;
+}
+
+/* A cycling shortcut only labels the active option. */
+.cycle button:not([aria-pressed="true"]) kbd {
+  display: none;
 }

@@ -804,19 +804,16 @@ export function setupReader() {
     root.innerHTML = `
     <style>${dialogCss}${css}</style>
     <dialog tabindex="-1">
-      <header class="bar">
+      <header class="top">
         <span class="title"></span>
         <span class="summary"></span>
-        <span class="switch">
-          <button type="button" data-theme-option="editorial">editorial</button>
-          <button type="button" data-theme-option="docs">docs</button>
-          <kbd>v</kbd>
+        <span class="seg cycle" role="group" aria-label="Style">
+          ${["editorial", "docs"].map((theme) => `<button type="button" data-theme-option="${theme}">${theme} <kbd>v</kbd></button>`).join("")}
         </span>
-        <span class="switch changes">
-          ${CHANGES_MODES.map((mode) => `<button type="button" data-changes-option="${mode}">${mode}</button>`).join("")}
-          <kbd>x</kbd>
+        <span class="seg cycle" role="group" aria-label="Changes">
+          ${CHANGES_MODES.map((mode) => `<button type="button" data-changes-option="${mode}">${mode} <kbd>x</kbd></button>`).join("")}
         </span>
-        <button type="button" class="close">esc</button>
+        <button type="button" class="close" aria-label="Close"><kbd>esc</kbd></button>
       </header>
       <div class="scroll">
         <nav class="toc"></nav>

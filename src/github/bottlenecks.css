@@ -18,7 +18,38 @@ dialog {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 24px 32px 120px;
+  padding: 16px 32px 120px;
+}
+
+/* Run stats, under the top bar */
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin: 0;
+  padding: 16px 32px 0;
+}
+
+.stats > div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+
+.stats dd {
+  margin: 0;
+  font: 600 18px ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats dt {
+  color: var(--dim);
+  font-size: 11px;
+}
+
+.stats .critical dd {
+  color: var(--critical);
 }
 
 .content {
@@ -221,32 +252,25 @@ h3 {
 
 .dag .bar {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
 }
 
-.dag .bar button {
-  padding: 1px 6px;
-  border: 1px solid #333;
+.dag .bar .seg {
   background: #000;
-  color: #fff;
-  font: inherit;
-  font-size: 11px;
-  cursor: pointer;
+}
+
+.dag .bar .seg button {
+  padding: 3px 8px;
 }
 
 .dag .bar .label {
-  align-self: center;
-  margin-left: 6px;
+  margin-left: 4px;
   color: var(--dim);
-  font-size: 11px;
-}
-
-.dag .bar button:hover,
-.dag .bar button[aria-pressed="true"] {
-  border-color: var(--dim);
 }
 
 .dag .minimap {
