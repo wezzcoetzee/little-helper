@@ -3,6 +3,7 @@ export interface Settings {
   timeoutMin: number;
   exclusions: string[];
   github_enabled: boolean;
+  github_merge_panel: boolean;
   darkmode_global: boolean;
   darkmode_brightness: number;
   nocookie_enabled: boolean;
@@ -20,6 +21,7 @@ export const defaults: Settings = {
   timeoutMin: 30,
   exclusions: [],
   github_enabled: true,
+  github_merge_panel: true,
   darkmode_global: false,
   darkmode_brightness: 100,
   nocookie_enabled: true,

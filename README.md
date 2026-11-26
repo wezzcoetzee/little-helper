@@ -48,6 +48,7 @@ On `github.com` and `gist.github.com`, including private repositories:
 - Expand code, wide tables and GitHub's diagram dialogs.
 - Read Markdown from the file browser or PR changed-files view, with word-level PR changes and locally rendered Mermaid diagrams. In a PR's changed files, a book icon sits before the source/rich diff toggle.
 - Find CI bottlenecks: **Bottlenecks** in an Actions run's header (and **Steps** on a job page) or **CI bottlenecks** beside a PR's merge box actions opens the run fullscreen with its critical path lit. A PR covers every Actions workflow on its head commit as one run; skipped jobs don't stretch the wall time and non-Actions checks are left out. Timings come from GitHub's job headers using your session, so private repos work. Waits include runner queueing and GitHub's handoff, and jobs still running are left out.
+- Open GitHub's **Merge status** panel automatically on a PR's overview, once per PR. Turn it off with **Open PR merge status** in Settings.
 
 Buttons the extension adds to GitHub are teal so they stand out from GitHub's own.
 

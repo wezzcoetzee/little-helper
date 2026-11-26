@@ -4,11 +4,12 @@ import { setupLightbox } from "./lightbox.js";
 import { setupExpand } from "./expand.js";
 import { setupReader } from "./reader.js";
 import { setupBottlenecks } from "./bottlenecks.js";
+import { setupMergePanel } from "./merge-panel.js";
 
 async function start() {
-  const { github_enabled } = await chrome.storage.local.get({
-    github_enabled: true,
-  });
+  const { github_enabled, github_merge_panel } = await chrome.storage.local.get(
+    { github_enabled: true, github_merge_panel: true },
+  );
   if (!github_enabled) return;
 
   const style = document.createElement("style");
@@ -19,6 +20,7 @@ async function start() {
   setupExpand(lightbox);
   const reader = setupReader();
   setupBottlenecks();
+  if (github_merge_panel) setupMergePanel();
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (sender.id !== chrome.runtime.id) return;

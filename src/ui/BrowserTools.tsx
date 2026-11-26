@@ -320,6 +320,7 @@ export function Preferences({
   const [status, setStatus] = useState("");
   const items = [
     ["GitHub tools", "github_enabled", ""],
+    ["Open PR merge status", "github_merge_panel", ""],
     ["Dismiss cookie banners", "nocookie_enabled", "nocookie_toggle"],
     ["YouTube focus", "unhook_enabled", "unhook_toggle"],
     ["X focus", "xunhook_enabled", "xunhook_toggle"],
