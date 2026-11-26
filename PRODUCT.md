@@ -1,4 +1,4 @@
-# wezzkit
+# Wezzkit
 
 ## Register
 

@@ -45,7 +45,7 @@ async function quickCapture(tab: chrome.tabs.Tab, mode: string) {
     });
     if (!results[0]?.result)
       throw new Error(
-        "Captured. Open wezzkit’s Page clipper to copy the Markdown.",
+        "Captured. Open Wezzkit’s Page clipper to copy the Markdown.",
       );
   } catch (error) {
     await publish(

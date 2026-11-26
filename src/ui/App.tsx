@@ -286,7 +286,7 @@ export function App() {
       <header className="app-header">
         <a className="brand" href="popup.html">
           <img src="icons/icon32.png" alt="" width="28" height="28" />
-          <span>wezzkit</span>
+          <span>Wezzkit</span>
         </a>
         <span className="site-label" title={host || "Open a website"}>
           {isSite && <i className="site-dot" />}

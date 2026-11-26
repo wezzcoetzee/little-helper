@@ -93,7 +93,7 @@ export function Music() {
         throw new Error("Enter your ACRCloud access key and secret below.");
       if (tabId < 0 || !Number.isSafeInteger(tabId))
         throw new Error(
-          "Open Music from the wezzkit menu on the tab playing audio.",
+          "Open Music from the Wezzkit menu on the tab playing audio.",
         );
       setPhase("recording");
       const audio = await recordTabAudio(
