@@ -84,7 +84,7 @@ async function build() {
   await bundle("src/ui/panel.tsx", "ui/panel.js", "esm");
   await bundle("src/ui/music-main.tsx", "ui/music.js", "esm");
   console.log(
-    "Built wezzkit → dist/ (load this folder in chrome://extensions)",
+    "Built Wezzkit → dist/ (load this folder in chrome://extensions)",
   );
 }
 await build();

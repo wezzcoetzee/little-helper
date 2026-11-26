@@ -1,6 +1,6 @@
-# wezzkit
+# Wezzkit
 
-One Chrome extension for page capture, GitHub reading and everyday browser tools. Built from GitHub Lightbox, SuperLevels and SnipSnapp, with a compact site-first toolbox and an original monochrome icon.
+One Chrome extension for page capture, GitHub reading and everyday browser tools. Built from GitHub Lightbox, SuperLevels and SnipSnapp, with a compact site-first toolbox and an original W icon.
 
 ## Install
 
@@ -13,7 +13,7 @@ bun run build
 
 1. Open `chrome://extensions` and enable **Developer mode**.
 2. Choose **Load unpacked** and select this project's **`dist/`** folder.
-3. Pin **wezzkit** to the toolbar and reload existing website tabs.
+3. Pin **Wezzkit** to the toolbar and reload existing website tabs.
 4. Disable the original three extensions to avoid running their features twice.
 
 The project root contains source files. Always load `dist/`, which contains the single combined manifest, scripts, dependencies and generated icons. Rebuild and reload the extension after updating it.
@@ -136,4 +136,4 @@ licenses/              Preserved upstream notices
 
 ## Credits and license
 
-MIT. Browser utility code is adapted from [SuperLevels by @levelsio](https://github.com/levelsio/superlevels), with its [MIT notice](licenses/SuperLevels-MIT.txt) retained. Markdown clipping is adapted from [SnipSnapp](https://github.com/wezzcoetzee/snipsnapp); GitHub media and reading tools come from the supplied GitHub Lightbox source. The new wezzkit icon uses an original `l` and plus mark, not the GitHub logo. The build includes dependency license texts in `dist/third-party-notices.txt`.
+MIT. Browser utility code is adapted from [SuperLevels by @levelsio](https://github.com/levelsio/superlevels), with its [MIT notice](licenses/SuperLevels-MIT.txt) retained. Markdown clipping is adapted from [SnipSnapp](https://github.com/wezzcoetzee/snipsnapp); GitHub media and reading tools come from the supplied GitHub Lightbox source. The Wezzkit icon is an original W mark with a teal dot, the same teal as the buttons it adds to GitHub. The build includes dependency license texts in `dist/third-party-notices.txt`.

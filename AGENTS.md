@@ -1,4 +1,4 @@
-# wezzkit
+# Wezzkit
 
 A single Chrome Manifest V3 extension. Bun bundles TypeScript/React UI, Markdown capture and retained JavaScript site enhancements. Load `dist/`, never the source root.
 

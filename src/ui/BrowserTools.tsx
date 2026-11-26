@@ -411,7 +411,7 @@ export function Preferences({
       </Section>
       <Section title="About">
         <p className="help">
-          wezzkit 1.0.0. Built from GitHub Lightbox, SuperLevels and SnipSnapp.
+          Wezzkit 1.0.0. Built from GitHub Lightbox, SuperLevels and SnipSnapp.
           Website content stays in your browser. Music recognition sends audio
           only when you choose to listen.
         </p>
