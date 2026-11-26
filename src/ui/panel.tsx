@@ -6,7 +6,7 @@ createRoot(document.getElementById("root")!).render(
     <header className="app-header">
       <div className="brand">
         <img src="icons/icon32.png" width="28" height="28" alt="" />
-        <span>little-helper</span>
+        <span>wezzkit</span>
       </div>
       <span className="site-label">Page clipper</span>
     </header>

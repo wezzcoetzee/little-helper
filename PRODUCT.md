@@ -1,4 +1,4 @@
-# little-helper
+# wezzkit
 
 ## Register
 

@@ -16,7 +16,7 @@ export function captureDocument(
       container.append(selection.getRangeAt(index).cloneContents());
   } else container.append((element ?? doc.body).cloneNode(true));
   container
-    .querySelectorAll("script,style,noscript,[data-little-helper-picker]")
+    .querySelectorAll("script,style,noscript,[data-wezzkit-picker]")
     .forEach((node) => node.remove());
   container.querySelectorAll("a[href],img[src]").forEach((node) => {
     for (const key of ["href", "src"]) {

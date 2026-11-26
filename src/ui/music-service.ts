@@ -134,7 +134,7 @@ export async function recordTabAudio(
     const consumer = await chrome.tabs.getCurrent();
     if (consumer?.id === undefined || consumer.id === tabId)
       throw new Error(
-        "Open Music from the little-helper menu on the tab playing audio.",
+        "Open Music from the wezzkit menu on the tab playing audio.",
       );
     const streamId = await chrome.tabCapture.getMediaStreamId({
       targetTabId: tabId,

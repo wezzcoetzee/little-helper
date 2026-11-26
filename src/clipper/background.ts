@@ -45,7 +45,7 @@ async function quickCapture(tab: chrome.tabs.Tab, mode: string) {
     });
     if (!results[0]?.result)
       throw new Error(
-        "Captured. Open little-helper’s Page clipper to copy the Markdown.",
+        "Captured. Open wezzkit’s Page clipper to copy the Markdown.",
       );
   } catch (error) {
     await publish(
@@ -61,24 +61,26 @@ async function quickCapture(tab: chrome.tabs.Tab, mode: string) {
 }
 export function setupClipper(): void {
   chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
-      id: "little-helper-clip",
-      title: "Copy page as Markdown",
-      contexts: ["page"],
-      documentUrlPatterns: ["http://*/*", "https://*/*"],
-    });
-    chrome.contextMenus.create({
-      id: "little-helper-clip-selection",
-      title: "Copy selection as Markdown",
-      contexts: ["selection"],
-      documentUrlPatterns: ["http://*/*", "https://*/*"],
+    // Menu items survive updates, so clear any left from older ids before recreating.
+    chrome.contextMenus.removeAll(() => {
+      chrome.contextMenus.create({
+        id: "wezzkit-clip",
+        title: "Copy page as Markdown",
+        contexts: ["page"],
+        documentUrlPatterns: ["http://*/*", "https://*/*"],
+      });
+      chrome.contextMenus.create({
+        id: "wezzkit-clip-selection",
+        title: "Copy selection as Markdown",
+        contexts: ["selection"],
+        documentUrlPatterns: ["http://*/*", "https://*/*"],
+      });
     });
   });
   chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (!tab) return;
-    if (info.menuItemId === "little-helper-clip")
-      void quickCapture(tab, "smart");
-    if (info.menuItemId === "little-helper-clip-selection")
+    if (info.menuItemId === "wezzkit-clip") void quickCapture(tab, "smart");
+    if (info.menuItemId === "wezzkit-clip-selection")
       void quickCapture(tab, "selection");
   });
   chrome.commands.onCommand.addListener((command) => {

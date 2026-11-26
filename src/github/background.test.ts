@@ -27,7 +27,7 @@ describe("GitHub request boundary", () => {
     const addListener = vi.fn();
     const fetch = vi.fn();
     vi.stubGlobal("chrome", {
-      runtime: { id: "little-helper", onMessage: { addListener } },
+      runtime: { id: "wezzkit", onMessage: { addListener } },
     });
     vi.stubGlobal("fetch", fetch);
     setupGithub();
@@ -51,7 +51,7 @@ describe("GitHub request boundary", () => {
     listener(
       message,
       {
-        id: "little-helper",
+        id: "wezzkit",
         url: "https://attacker.example",
         tab: { id: 1 },
       } as chrome.runtime.MessageSender,
@@ -69,7 +69,7 @@ describe("GitHub request boundary", () => {
       .fn()
       .mockResolvedValue({ ok: true, text: async () => "# Private document" });
     vi.stubGlobal("chrome", {
-      runtime: { id: "little-helper", onMessage: { addListener } },
+      runtime: { id: "wezzkit", onMessage: { addListener } },
     });
     vi.stubGlobal("fetch", fetch);
     setupGithub();
@@ -82,7 +82,7 @@ describe("GitHub request boundary", () => {
       listener(
         { type: "github:text", url },
         {
-          id: "little-helper",
+          id: "wezzkit",
           url: "https://github.com/owner/repo",
           tab: { id: 1 },
         } as chrome.runtime.MessageSender,
