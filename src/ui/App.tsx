@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Action, errorText, Section, Toggle } from "./components";
 import { useSettings } from "./useSettings";
+import { githubFeatures } from "../settings";
 import { Cookies } from "./Cookies";
 import { CssEditor, Preferences, Redirects, Tabs } from "./BrowserTools";
 import { activeTab } from "./shared";
@@ -269,9 +270,8 @@ export function App() {
           !ready ||
           busy ||
           Boolean(tool.siteOnly && (!isSite || !siteReady)) ||
-          Boolean(
-            ["gallery", "reader"].includes(id) && !settings.github_enabled,
-          )
+          (id === "gallery" && !settings.github_lightbox) ||
+          (id === "reader" && !settings.github_reader)
         }
         onClick={() =>
           run(async () => {
@@ -371,7 +371,7 @@ export function App() {
                 {isGithub && (
                   <Section
                     title="GitHub"
-                    detail={settings.github_enabled ? "Enabled" : "Disabled"}
+                    detail={`${githubFeatures.filter(([, key]) => settings[key]).length} of ${githubFeatures.length} on`}
                   >
                     {action("gallery")}
                     {action("reader")}
