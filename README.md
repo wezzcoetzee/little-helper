@@ -24,7 +24,7 @@ The project root contains source files. Always load `dist/`, which contains the 
 - **Browser:** optional tab cleanup, excluded sites and recently auto-closed tabs.
 - **All tools / Settings:** search and preferences for GitHub, YouTube/X focus, X dim palettes, JSON formatting and Google helpers.
 
-Press `/` in the popup to search tools. Preferences save automatically except CSS and music credentials, which have explicit save buttons. Dark mode and custom CSS are per hostname; JavaScript settings apply to the current origin. Cookie dismissal, focus tools and formatting preferences apply across their supported sites. Reload open pages after changing global tool preferences.
+Press `/` in the popup to search tools. Preferences save automatically except CSS and music credentials, which have explicit save buttons. Dark mode and custom CSS are per hostname, with a global dark mode default and brightness in Settings; JavaScript settings apply to the current origin. Cookie dismissal, focus tools and formatting preferences apply across their supported sites. Reload open pages after changing global tool preferences.
 
 ### Page clipper
 
@@ -32,7 +32,7 @@ Press `/` in the popup to search tools. Preferences save automatically except CS
 
 - **Smart extract:** removes navigation and other surrounding content with Mozilla Readability.
 - **Full page:** converts the page body into Markdown.
-- **Pick element:** hover and click a page element; press Escape or Cancel to stop.
+- **Pick element:** hover and click a page element; press Escape or **Cancel picker** to stop.
 - Toggle YAML metadata, links and images; edit the output, copy it or download a `.md` file.
 - Token counts are estimates using a GPT tokenizer, not guarantees for a particular model.
 
@@ -45,7 +45,7 @@ On `github.com` and `gist.github.com`, including private repositories:
 - Open images and videos in a fullscreen lightbox; browse a page gallery, zoom and pan.
 - Compare before/after images from a two-image table row.
 - Copy, download or open the original media.
-- Expand code, wide tables and GitHub's diagram dialogs.
+- Expand overflowing code and wide tables, open videos in the lightbox, and show GitHub's diagram dialogs fullscreen.
 - Read Markdown from the file browser or PR changed-files view, with word-level PR changes and locally rendered Mermaid diagrams. In a PR's changed files, a book icon sits before the source/rich diff toggle.
 - Find CI bottlenecks: **Bottlenecks** in an Actions run's header (and **Steps** on a job page) or **CI bottlenecks** beside a PR's merge box actions opens the run fullscreen with its critical path lit. A PR covers every Actions workflow on its head commit as one run; skipped jobs don't stretch the wall time and non-Actions checks are left out. Timings come from GitHub's job headers using your session, so private repos work. Waits include runner queueing and GitHub's handoff, and jobs still running are left out.
 - Open GitHub's **Merge status** panel automatically on a PR's overview, once per PR. Turn it off with **Open PR merge status** in Settings.
@@ -65,9 +65,9 @@ Buttons the extension adds to GitHub are teal so they stand out from GitHub's ow
 | Reader           | `x`                  | Cycle word diff / change bars / off                                                            |
 | Reader           | `n`                  | Next changed block                                                                             |
 | Bottlenecks      | `1`                  | Waterfall: every job on one time axis, waits hatched                                           |
-| Bottlenecks      | `2`                  | Graph: pannable, zoomable job graph (drag nodes, `[`/`]` spacing, `r` horizontal or vertical, expand) with the critical path lit |
+| Bottlenecks      | `2`                  | Graph: draggable job graph with the critical path lit. When focused: `f` fit, `+`/`-` zoom, `[`/`]` spacing, `r` horizontal or vertical, `e` expand |
 | Bottlenecks      | `3`                  | Slack: jobs ranked by how much longer they could run without delaying the run; click for steps |
-| Viewer or reader | Escape               | Close                                                                                          |
+| Any dialog       | Escape               | Close; also collapses an expanded code block or table                                          |
 
 Modifier-click and middle-click retain normal link behavior. Reader style, change-display, bottlenecks view and graph layout preferences use Chrome sync storage; other settings remain local.
 
@@ -87,7 +87,7 @@ Modifier-click and middle-click retain normal link behavior. Reader style, chang
 
 ## Privacy and permissions
 
-No backend, analytics or telemetry. Page conversion, token counting, media viewing and custom styles run locally. Settings and histories stay in your Chrome profile, except reader and bottlenecks view preferences synced by Chrome. Music credentials are local to the profile and are excluded from preference exports. Music identification is the only feature that uploads a recording, and only after pressing Listen. GitHub's reader and media tools fetch the requested files/images using your existing GitHub session.
+No backend, analytics or telemetry. Page conversion, token counting, media viewing and custom styles run locally. Settings and histories stay in your Chrome profile, except reader and bottlenecks view preferences synced by Chrome. Music credentials are local to the profile. Preference exports leave out music credentials and history, closed-tab history and clipper data. Music identification is the only feature that uploads a recording, and only after pressing Listen. GitHub's reader and media tools fetch the requested files/images using your existing GitHub session.
 
 | Permission                                    | Purpose                                                                                                                        |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -113,7 +113,7 @@ bun install --frozen-lockfile
 bun run dev          # Rebuild when source changes; reload in chrome://extensions
 bun run format:check # Check source formatting
 bun run typecheck    # Strict TypeScript and retained GitHub checkJs source
-bun run test         # Focused conversion, lifecycle, cookie and settings regressions
+bun run test         # Focused clipper, browser, GitHub, cookie and settings regressions
 bun run build        # Generate dist/ from source, including PNG icon sizes
 bun run check:build  # Check packaged entrypoints, CSS, icons and Mermaid chunks
 ```
@@ -125,7 +125,7 @@ manifest.json          Single Manifest V3 configuration
 public/                Popup, side panel, music page and source icon
 src/background/        Shared worker startup
 src/browser/           Site enhancements, tab cleanup and redirect tracing
-src/github/            Media viewer, reader and lazy diagram rendering
+src/github/            Media viewer, reader, CI bottlenecks and PR page enhancements
 src/clipper/           Capture, HTML conversion, picker and messaging
 src/ui/                Site toolbox and editing interfaces
 scripts/               Bun build and package validation
