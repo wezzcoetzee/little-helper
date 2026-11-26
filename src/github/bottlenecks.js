@@ -1421,11 +1421,18 @@ const MERGE_ACTION =
  * The row holding the merge box's header actions: the closest ancestor of the first
  * action that isn't its split-button group, so ours lands beside "Update branch" and
  * not inside its dropdown pair.
+ *
+ * GitHub's merge status side panel repeats the actions, and either can render first.
+ * The merge box is the leftmost (the panel docks right, or stacks below when narrow,
+ * hence top as the tie-break). Hidden copies have no boxes and are skipped.
  */
-function mergeBoxActions() {
-  const action = [...document.querySelectorAll("button")].find((button) =>
-    MERGE_ACTION.test(button.textContent?.trim() ?? ""),
-  );
+export function mergeBoxActions() {
+  const action = [...document.querySelectorAll("button")]
+    .filter((button) => MERGE_ACTION.test(button.textContent?.trim() ?? ""))
+    .map((button) => ({ button, box: button.getBoundingClientRect() }))
+    .filter(({ box }) => box.width > 0)
+    .sort((a, b) => a.box.left - b.box.left || a.box.top - b.box.top)[0]
+    ?.button;
   let el = action?.parentElement;
   while (el?.parentElement && /ButtonGroup/i.test(el.className)) {
     el = el.parentElement;
@@ -1445,12 +1452,13 @@ let pullButton;
  * Adds the button just before the merge box's header actions once they show, and
  * floats it on <body> until then, or if GitHub changes their wording. It only goes in
  * next to nodes that already exist and never moves React's own: inserted among the
- * tabs before React had hydrated them, it blanked them. If React redraws the row and
- * drops it, the next sync adds a new one. Follows GitHub's in-page navigation between
- * PRs.
+ * tabs before React had hydrated them, it blanked them. Every sync re-checks the
+ * target, so a button that landed in the side panel moves to the merge box once that
+ * renders. If React redraws the row and drops it, the next sync adds a new one.
+ * Follows GitHub's in-page navigation between PRs.
  * @param {RegExpMatchArray | null} match
  */
-function syncPull(match) {
+export function syncPull(match) {
   const pull = match && `/${match[1]}/${match[2]}/pull/${match[3]}`;
   if (
     pullButton &&
@@ -1460,7 +1468,6 @@ function syncPull(match) {
     pullButton = undefined;
   }
   if (!match || !pull) return;
-  if (pullButton?.classList.contains("ghci-anchored")) return;
 
   if (!pullButton) {
     const title = `${match[1]}/${match[2]} #${match[3]}`;
@@ -1469,12 +1476,16 @@ function syncPull(match) {
     );
     pullButton.dataset.pull = pull;
   }
-  const actions = mergeBoxActions();
-  pullButton.className = actions
-    ? "ghci-open btn btn-sm ghci-anchored"
-    : "ghci-open btn btn-sm ghci-float";
-  if (actions?.first) actions.first.before(pullButton);
-  else if (!pullButton.isConnected) document.body.append(pullButton);
+  const first = mergeBoxActions()?.first;
+  if (first) {
+    pullButton.classList.remove("ghci-float");
+    pullButton.classList.add("ghci-anchored");
+    // Moving it fires the observer again, so only move it when it's out of place.
+    if (pullButton.nextElementSibling !== first) first.before(pullButton);
+  } else if (!pullButton.isConnected) {
+    pullButton.classList.add("ghci-float");
+    document.body.append(pullButton);
+  }
 }
 
 function sync() {

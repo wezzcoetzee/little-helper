@@ -1,6 +1,6 @@
 // @ts-check
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { slack, splitLabel, timeRun } from "./bottlenecks.js";
+import { slack, splitLabel, syncPull, timeRun } from "./bottlenecks.js";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -84,5 +84,36 @@ describe("splitLabel", () => {
 
   it("leaves a name without a workflow ungrouped", () => {
     expect(splitLabel("lint")).toEqual({ group: "", name: "lint" });
+  });
+});
+
+describe("CI bottlenecks button on a PR", () => {
+  /**
+   * A merge actions row whose buttons report a layout box at `left`, as jsdom has none.
+   * @param {number} left
+   */
+  function mergeRow(left) {
+    const row = document.createElement("div");
+    const merge = document.createElement("button");
+    merge.textContent = "Merge pull request";
+    merge.getBoundingClientRect = () => new DOMRect(left, 0, 100, 30);
+    row.append(merge);
+    document.body.append(row);
+    return merge;
+  }
+
+  const match = "/o/r/pull/7".match(/^\/([^/]+)\/([^/]+)\/pull\/(\d+)/);
+  const button = () => document.querySelector(".ghci-open");
+
+  it("moves from the side panel to the merge box once the merge box renders", () => {
+    const panel = mergeRow(1400);
+    syncPull(match);
+    expect(button()?.nextElementSibling).toBe(panel);
+
+    const box = mergeRow(700);
+    syncPull(match);
+    expect(button()?.nextElementSibling).toBe(box);
+    expect(document.querySelectorAll(".ghci-open")).toHaveLength(1);
+    expect(button()?.classList.contains("ghci-anchored")).toBe(true);
   });
 });
