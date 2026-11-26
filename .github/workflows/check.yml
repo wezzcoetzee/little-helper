@@ -20,5 +20,5 @@ jobs:
       - run: bun run check:build
       - uses: actions/upload-artifact@v4
         with:
-          name: little-helper
+          name: wezzkit
           path: dist/

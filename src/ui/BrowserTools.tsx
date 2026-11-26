@@ -115,7 +115,7 @@ export function Tabs({
       <Section title="Recently closed" detail={`${closed.length} tabs`}>
         {!closed.length && (
           <p className="help">
-            Tabs closed by little-helper appear here for reopening.
+            Tabs closed by wezzkit appear here for reopening.
           </p>
         )}
         {closed.map((item, index) => (
@@ -397,7 +397,7 @@ export function Preferences({
       </Section>
       <Section title="About">
         <p className="help">
-          little-helper 1.0.0. Built from GitHub Lightbox, SuperLevels and
+          wezzkit 1.0.0. Built from GitHub Lightbox, SuperLevels and
           SnipSnapp. Website content stays in your browser. Music recognition
           sends audio only when you choose to listen.
         </p>
@@ -416,7 +416,7 @@ export function Preferences({
               );
               downloadText(
                 JSON.stringify(safe, null, 2),
-                "little-helper-settings.json",
+                "wezzkit-settings.json",
                 "application/json",
               );
             })

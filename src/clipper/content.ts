@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener((message, _sender, respond) => {
         throw new Error("Invalid capture request.");
       const requestId = message.requestId;
       const overlay = document.createElement("div");
-      overlay.dataset.littleHelperPicker = "";
+      overlay.dataset.wezzkitPicker = "";
       overlay.style.cssText =
         "position:fixed;pointer-events:none;border:2px solid #fff;box-shadow:0 0 0 1px #000;z-index:2147483647;display:none";
       document.documentElement.append(overlay);
