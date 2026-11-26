@@ -1,7 +1,10 @@
 // @ts-check
 
-/** @param {{ openLightbox: (source: HTMLImageElement | HTMLVideoElement) => void }} lightbox */
-export function setupExpand({ openLightbox }) {
+/**
+ * Without the lightbox, videos expand in place like code and tables.
+ * @param {{ openLightbox: (source: HTMLImageElement | HTMLVideoElement) => void }} [lightbox]
+ */
+export function setupExpand(lightbox) {
   // Diagrams aren't here: GitHub has its own dialog for them, which content.css makes fullscreen.
   const EXPANDABLE =
     ".markdown-body pre, .markdown-body table, .markdown-body video";
@@ -34,7 +37,8 @@ export function setupExpand({ openLightbox }) {
       if (expanded) return collapse();
       const target = hovered;
       hideButton();
-      if (target instanceof HTMLVideoElement) openLightbox(target);
+      if (target instanceof HTMLVideoElement && lightbox)
+        lightbox.openLightbox(target);
       else if (target) expand(target);
     });
     document.body.append(button);

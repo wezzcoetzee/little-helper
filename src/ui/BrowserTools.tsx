@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { downloadText, errorText, Field, Section, Toggle } from "./components";
 import type { Settings } from "./useSettings";
+import { githubFeatures } from "../settings";
 
 type Update = <K extends keyof Settings>(
   key: K,
@@ -319,8 +320,6 @@ export function Preferences({
 }) {
   const [status, setStatus] = useState("");
   const items = [
-    ["GitHub tools", "github_enabled", ""],
-    ["Open PR merge status", "github_merge_panel", ""],
     ["Dismiss cookie banners", "nocookie_enabled", "nocookie_toggle"],
     ["YouTube focus", "unhook_enabled", "unhook_toggle"],
     ["X focus", "xunhook_enabled", "xunhook_toggle"],
@@ -345,6 +344,21 @@ export function Preferences({
               run(async () => {
                 await update(key, value);
                 setStatus("Saved. Reload open pages to apply.");
+              })
+            }
+          />
+        ))}
+      </Section>
+      <Section title="GitHub">
+        {githubFeatures.map(([label, key]) => (
+          <Toggle
+            key={key}
+            label={label}
+            checked={settings[key]}
+            onChange={(value) =>
+              run(async () => {
+                await update(key, value);
+                setStatus("Saved. Reload GitHub tabs to apply.");
               })
             }
           />
@@ -397,9 +411,9 @@ export function Preferences({
       </Section>
       <Section title="About">
         <p className="help">
-          wezzkit 1.0.0. Built from GitHub Lightbox, SuperLevels and
-          SnipSnapp. Website content stays in your browser. Music recognition
-          sends audio only when you choose to listen.
+          wezzkit 1.0.0. Built from GitHub Lightbox, SuperLevels and SnipSnapp.
+          Website content stays in your browser. Music recognition sends audio
+          only when you choose to listen.
         </p>
         <button
           onClick={() =>
