@@ -116,7 +116,7 @@ export function Tabs({
       <Section title="Recently closed" detail={`${closed.length} tabs`}>
         {!closed.length && (
           <p className="help">
-            Tabs closed by wezzkit appear here for reopening.
+            Tabs closed by Wezzkit appear here for reopening.
           </p>
         )}
         {closed.map((item, index) => (
